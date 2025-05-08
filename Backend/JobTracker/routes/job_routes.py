@@ -1,51 +1,20 @@
-import os
-from fastapi import FastAPI, Depends, HTTPException ,Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from pydantic_models import JobCreate, JobResponse
-from data_models import Base, Jobs
-from sqlite_data_manager import get_session ,get_engine
-from sqlalchemy.exc import IntegrityError
-from typing import Optional ,List
+from typing import List, Optional
 from datetime import date
+from ..schema.pydantic_models import JobCreate, JobResponse
+from ..models.data_models import Jobs
+from ..data_manager.sqlite_data_manager import get_session
+from sqlalchemy.exc import IntegrityError
 
+router = APIRouter()
 
-# Initialize FastAPI app
-app = FastAPI()
-
-# Setup DB
-db_path = os.path.join(os.path.realpath(os.path.dirname(__file__)), '../data', 'jobs.sqlite')
-db_file_name = f"sqlite:///{db_path}"
-
-# Create SQLAlchemy engine
-engine = get_engine(db_file_name)
-
-# Create Session Factory
-SessionLocal = get_session(engine)
-
-# Create tables if they don't exist
-Base.metadata.create_all(bind=engine)
-
-# Dependency to get DB session
-def get_db():
-    db = get_session(engine)()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.get("/")
-def root():
-    return {"message": "Job Tracker API"}
-
-# This route is used to either get all jobs or filter the jobs based
-# on the filter criteria provided by the user
-
-@app.get("/jobs", response_model=List[JobResponse])
+@router.get("/jobs", response_model=List[JobResponse])
 def get_filtered_jobs(
     company: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     applied_date: Optional[date] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_session)
 ):
     query = db.query(Jobs)
 
@@ -58,8 +27,8 @@ def get_filtered_jobs(
 
     return query.all()
 
-@app.post("/jobs/", response_model=JobResponse)
-def create_job(job: JobCreate, db: Session = Depends(get_db)):
+@router.post("/jobs/", response_model=JobResponse)
+def create_job(job: JobCreate, db: Session = Depends(get_session)):
     #model.dump() is a pydantic method to convert  a Pydantic model into a standard
     # Python dictionary.
     #unpacking is performed
@@ -77,8 +46,8 @@ def create_job(job: JobCreate, db: Session = Depends(get_db)):
         db.close()  # Ensure the session is closed after the operation
     return new_job
 
-@app.get("/jobs/{job_id}", response_model=JobResponse)
-def read_job(job_id: int, db: Session = Depends(get_db)):
+@router.get("/jobs/{job_id}", response_model=JobResponse)
+def read_job(job_id: int, db: Session = Depends(get_session)):
     try:
         job = db.query(Jobs).filter(Jobs.id == job_id).first()
 
@@ -91,8 +60,8 @@ def read_job(job_id: int, db: Session = Depends(get_db)):
     return job
 
 
-@app.delete("/jobs/{job_id}", status_code=204)
-def delete_job(job_id: int, db: Session = Depends(get_db)):
+@router.delete("/jobs/{job_id}", status_code=204)
+def delete_job(job_id: int, db: Session = Depends(get_session)):
     # Fetch the job from the database
     job = db.query(Jobs).filter(Jobs.id == job_id).first()
 
@@ -107,8 +76,8 @@ def delete_job(job_id: int, db: Session = Depends(get_db)):
     return None
 
 
-@app.put("/jobs/{job_id}", response_model=JobResponse)
-def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_db)):
+@router.put("/jobs/{job_id}", response_model=JobResponse)
+def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_session)):
     try:
         job = db.query(Jobs).filter(Jobs.id == job_id).first()
         if job is None:
@@ -131,12 +100,12 @@ def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_db)
     return job
 
 
-@app.get("/jobs/", response_model=List[JobResponse])
+@router.get("/jobs/", response_model=List[JobResponse])
 def get_filtered_jobs(
         company: Optional[str] = Query(None, description="Filter by company name"),
         status: Optional[str] = Query(None, description="Filter by job status"),
         applied_date: Optional[date] = Query(None, description="Filter by applied date"),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_session)
 ):
     query = db.query(Jobs)
 
@@ -150,10 +119,3 @@ def get_filtered_jobs(
 
     jobs = query.all()
     return jobs
-
-
-
-
-
-
-

@@ -3,7 +3,7 @@ from datetime import date
 from typing import Optional
 
 
-#pydasntic model is used to handle the quality of input data
+#pydasntic model is used to handle the quality of input db
 class JobBase(BaseModel):
     title: str #Required
     company: str #Required
@@ -13,9 +13,11 @@ class JobBase(BaseModel):
     notes: Optional[str] = None
     follow_up_date: Optional[date] = None
 
+#For creating a new job
 class JobCreate(JobBase):
     pass
 
+#For returning  a job response
 class JobResponse(JobBase):
     id: int
 
