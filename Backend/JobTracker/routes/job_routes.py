@@ -7,25 +7,31 @@ from ..models.data_models import Jobs
 from ..data_manager.sqlite_data_manager import get_session
 from sqlalchemy.exc import IntegrityError
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/jobs",
+    tags=["Job Tracker"]
+)
 
-@router.get("/jobs", response_model=List[JobResponse])
+
+@router.get("/jobs/", response_model=List[JobResponse])
 def get_filtered_jobs(
-    company: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    applied_date: Optional[date] = Query(None),
-    db: Session = Depends(get_session)
+        company: Optional[str] = Query(None, description="Filter by company name"),
+        status: Optional[str] = Query(None, description="Filter by job status"),
+        applied_date: Optional[date] = Query(None, description="Filter by applied date"),
+        db: Session = Depends(get_session)
 ):
     query = db.query(Jobs)
 
     if company:
+        # Use case-insensitive matching with wildcards, e.g. to filter companies that contain the string
         query = query.filter(Jobs.company.ilike(f"%{company}%"))
     if status:
         query = query.filter(Jobs.status.ilike(f"%{status}%"))
     if applied_date:
         query = query.filter(Jobs.applied_date == applied_date)
 
-    return query.all()
+    jobs = query.all()
+    return jobs
 
 @router.post("/jobs/", response_model=JobResponse)
 def create_job(job: JobCreate, db: Session = Depends(get_session)):
@@ -100,22 +106,3 @@ def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_ses
     return job
 
 
-@router.get("/jobs/", response_model=List[JobResponse])
-def get_filtered_jobs(
-        company: Optional[str] = Query(None, description="Filter by company name"),
-        status: Optional[str] = Query(None, description="Filter by job status"),
-        applied_date: Optional[date] = Query(None, description="Filter by applied date"),
-        db: Session = Depends(get_session)
-):
-    query = db.query(Jobs)
-
-    if company:
-        # Use case-insensitive matching with wildcards, e.g. to filter companies that contain the string
-        query = query.filter(Jobs.company.ilike(f"%{company}%"))
-    if status:
-        query = query.filter(Jobs.status.ilike(f"%{status}%"))
-    if applied_date:
-        query = query.filter(Jobs.applied_date == applied_date)
-
-    jobs = query.all()
-    return jobs

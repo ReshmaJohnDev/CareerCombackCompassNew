@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Date ,UniqueConstraint
+from sqlalchemy import Column, Integer, String, Date,Text,UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
+
 # Base class for SQLAlchemy models
 Base = declarative_base()
 
@@ -19,5 +20,3 @@ class Jobs(Base):
     # Add a unique constraint on the combination of title and company
     __table_args__ = (UniqueConstraint('title', 'company', name='_title_company_uc'),)
 
-    def __repr__(self):
-        return f"<Job(id={self.id}, title={self.title}, company={self.company})>"
