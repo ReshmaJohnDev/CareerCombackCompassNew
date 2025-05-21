@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from ..models.data_models import Jobs,Base
-from ..config.config import DATABASE_URI
-
+from ..models.data_models import Base
+from config.config import DATABASE_URI
 
 
 engine = create_engine(DATABASE_URI)
