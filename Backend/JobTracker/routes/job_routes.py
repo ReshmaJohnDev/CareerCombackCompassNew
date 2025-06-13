@@ -6,6 +6,7 @@ from ..schema.pydantic_models import JobCreate, JobResponse
 from ..models.data_models import Jobs
 from ..data_manager.sqlite_data_manager import get_session
 from sqlalchemy.exc import IntegrityError
+from util.auth_util import get_password_hash, verify_password, create_access_token
 
 router = APIRouter(
     prefix="/jobs",
@@ -21,7 +22,6 @@ def get_filtered_jobs(
         db: Session = Depends(get_session)
 ):
     query = db.query(Jobs)
-
     if company:
         # Use case-insensitive matching with wildcards, e.g. to filter companies that contain the string
         query = query.filter(Jobs.company.ilike(f"%{company}%"))
@@ -34,12 +34,13 @@ def get_filtered_jobs(
     return jobs
 
 @router.post("/jobs/", response_model=JobResponse)
-def create_job(job: JobCreate, db: Session = Depends(get_session)):
+def create_job(job: JobCreate,  db: Session = Depends(get_session)):
     #model.dump() is a pydantic method to convert  a Pydantic model into a standard
     # Python dictionary.
     #unpacking is performed
+    job_data = job.model_dump()
 
-    new_job = Jobs(**job.model_dump())  # Create new job using the data passed in the request
+    new_job = Jobs(**job_data)  # Create new job using the data passed in the request
     db.add(new_job)
     try:
         db.commit()
@@ -53,7 +54,7 @@ def create_job(job: JobCreate, db: Session = Depends(get_session)):
     return new_job
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)
-def read_job(job_id: int, db: Session = Depends(get_session)):
+def read_job(job_id: int,db: Session = Depends(get_session)):
     try:
         job = db.query(Jobs).filter(Jobs.id == job_id).first()
 

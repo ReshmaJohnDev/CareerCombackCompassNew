@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String, Date,Text,UniqueConstraint
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship
+from shared.base import Base
 
-# Base class for SQLAlchemy models
-Base = declarative_base()
 
 class Jobs(Base):
     __tablename__ = 'jobs'
@@ -16,6 +15,7 @@ class Jobs(Base):
     status = Column(String, nullable=False, index=True)
     notes = Column(String, nullable=True)
     follow_up_date = Column(Date, nullable=True)
+
 
     # Add a unique constraint on the combination of title and company
     __table_args__ = (UniqueConstraint('title', 'company', name='_title_company_uc'),)
