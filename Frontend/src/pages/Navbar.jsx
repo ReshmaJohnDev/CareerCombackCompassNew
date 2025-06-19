@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Sun, Moon } from "lucide-react";
 
-export default function NavBar() {
+export default function NavBar({ darkMode, setDarkMode }) {
   const [username, setUsername] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
@@ -26,14 +27,21 @@ export default function NavBar() {
   return (
     <div className="h-20 bg-gradient-to-r from-gray-600 to-gray-400 flex items-center justify-end px-8 text-white space-x-8">
       <nav className="flex space-x-6 font-semibold">
-        <a href="#" className="hover:text-gray-300">
+        <Link to="/" className="hover:text-gray-300">
           Home
-        </a>
+        </Link>
         <Link to="/services" className="hover:text-gray-300">
           Services
         </Link>
+        {/* Dark Mode Toggle Button */}
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="text-white hover:text-gray-300"
+          aria-label="Toggle Dark Mode"
+        >
+          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
       </nav>
-
       <div className="relative">
         {!username ? (
           <Link to="/login" className="hover:text-gray-300 font-semibold">

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import NavBar from "./Navbar";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -30,8 +31,8 @@ export default function Login() {
   };
 
   return (
-    <>
-      <NavBar />
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full flex items-center max-w-xl bg-gray-800 p-8 rounded-xl shadow-md">
           <h3 className="text-3xl font-bold text-center text-white mb-6">
@@ -79,6 +80,7 @@ export default function Login() {
           </form>
         </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 }

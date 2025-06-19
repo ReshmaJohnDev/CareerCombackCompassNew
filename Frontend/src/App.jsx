@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Services from "./pages/Services";
 import Landing from "./pages/Landing";
-import GapStoryBuilder from "./pages/GapStoryBuilder";
+import GapStoryBuilder from "./pages/GapGenerator/GapStoryBuilder";
 import ActionPlanner from "./pages/ActionPlanner";
 import JobTracker from "./pages/JobTracker/JobTracker";
 import InterviewLog from "./pages/InterviewLog";
@@ -12,7 +12,7 @@ import "./index.css";
 import GetStarted from "./pages/GetStarted";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import AddJobForm from "./pages/JobTracker/AddJobForm";
+
 function App() {
   return (
     <Router>
@@ -28,7 +28,6 @@ function App() {
         <Route path="/get_started" element={<GetStarted />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/add_job" element={<AddJobForm />} />
       </Routes>
     </Router>
   );

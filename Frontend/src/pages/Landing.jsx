@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function Landing() {
   const [showParagraph, setShowParagraph] = useState(false);
@@ -35,12 +36,11 @@ export default function Landing() {
     } else navigate("/get_started");
   };
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Nav Bar */}
-      <Navbar />
+    <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
+      <Navbar />
       <div
-        className="relative h-[550px] bg-cover bg-center flex items-left justify-start"
+        className="relative flex-grow bg-cover bg-center flex items-start justify-start min-h-[550px]"
         style={{
           backgroundImage: "url('/background.jpg')",
           backgroundSize: "100%", // or "50%", "100% auto", "200px 300px", etc.
@@ -72,9 +72,7 @@ export default function Landing() {
       </div>
 
       {/* Footer */}
-      <div className="h-16 bg-gradient-to-r from-gray-800 to-gray-400 flex items-center justify-center text-white px-8">
-        <p>© 2025 Comeback Compass. All rights reserved.</p>
-      </div>
+      <Footer />
     </div>
   );
 }
