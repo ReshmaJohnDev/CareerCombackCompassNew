@@ -2,23 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
-from ..schema.pydantic_models import JobCreate, JobResponse
-from ..models.data_models import Jobs
+from ..schema.pydantic_models  import GoalUpdate,GoalOut
+from ..models.data_models import Goal
 from ..data_manager.sqlite_data_manager import get_session
+from . import crud
 from sqlalchemy.exc import IntegrityError
-# from util.auth_util import get_password_hash, verify_password, create_access_token
+
 
 router = APIRouter(
-    prefix="/jobs",
-    tags=["Job Tracker"]
+    prefix="/goals",
+    tags=["Goals Tracker"]
 )
 
 
-@router.get("/jobs/", response_model=List[JobResponse])
-def get_filtered_jobs(
-        company: Optional[str] = Query(None, description="Filter by company name"),
-        status: Optional[str] = Query(None, description="Filter by job status"),
-        applied_date: Optional[date] = Query(None, description="Filter by applied date"),
+@router.get("/", response_model=List[GoalOut])
+def read_goals(
         db: Session = Depends(get_session)
 ):
     query = db.query(Jobs)
@@ -90,24 +88,20 @@ def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_ses
         if job is None:
             raise HTTPException(status_code=404, detail="Job not found")
 
-        
-        update_data = updated_job.dict(exclude_unset=True)
-          # Update only provided fields dynamically
-        for key, value in update_data.items():
-            setattr(job, key, value)
-
-        # job.title = updated_job.title
-        # job.company = updated_job.company
-        # job.applied_date = updated_job.applied_date
-        # job.application_link = updated_job.application_link
-        # job.status = updated_job.status
-        # job.notes = updated_job.notes
-        # job.follow_up_date = updated_job.follow_up_date
+        job.title = updated_job.title
+        job.company = updated_job.company
+        job.applied_date = updated_job.applied_date
+        job.application_link = updated_job.application_link
+        job.status = updated_job.status
+        job.notes = updated_job.notes
+        job.follow_up_date = updated_job.follow_up_date
 
         db.commit()
         db.refresh(job)
-        return job
 
     except Exception as e:
         db.rollback()  # Rollback any changes made in the transaction
         raise HTTPException(status_code=500, detail="An error occurred while updating the job.")
+    return job
+
+
