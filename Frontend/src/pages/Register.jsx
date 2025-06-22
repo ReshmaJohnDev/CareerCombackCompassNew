@@ -31,7 +31,7 @@ export default function Register() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full flex items-center max-w-xl bg-gray-800 p-8 rounded-xl shadow-md">
           <h3 className="text-3xl font-bold text-center text-white mb-6">

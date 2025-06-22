@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 
-export default function NavBar({ darkMode, setDarkMode }) {
-  const [username, setUsername] = useState(null);
+export default function Navbar({
+  username,
+  setUsername,
+  darkMode,
+  setDarkMode,
+}) {
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("user_name");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    } else {
-      setUsername(null);
-    }
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

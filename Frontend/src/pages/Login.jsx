@@ -4,7 +4,7 @@ import api from "../api";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-export default function Login() {
+export default function Login({ setUsername }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +23,7 @@ export default function Login() {
       const { access_token, name } = response.data;
       localStorage.setItem("token", access_token); // save token in browser
       localStorage.setItem("user_name", name);
-
+      setUsername(name);
       navigate("/"); // redirect after login
     } catch (err) {
       setError("Invalid email or password");
@@ -32,7 +32,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full flex items-center max-w-xl bg-gray-800 p-8 rounded-xl shadow-md">
           <h3 className="text-3xl font-bold text-center text-white mb-6">

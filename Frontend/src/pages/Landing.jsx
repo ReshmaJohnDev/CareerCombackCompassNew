@@ -3,9 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-export default function Landing() {
+export default function Landing({ darkMode, setDarkMode }) {
   const [showParagraph, setShowParagraph] = useState(false);
-  const [username, setUsername] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
 
@@ -14,21 +13,9 @@ export default function Landing() {
       setShowParagraph(true);
     }, 400); // Delay in milliseconds
 
-    const storedUsername = localStorage.getItem("user_name");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-
     return () => clearTimeout(timer);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_name");
-    setUsername(null);
-    setShowMenu(false);
-    navigate("/");
-  };
   const handleGetStarted = () => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -37,8 +24,6 @@ export default function Landing() {
   };
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <Navbar />
       <div
         className="relative flex-grow bg-cover bg-center flex items-start justify-start min-h-[550px]"
         style={{

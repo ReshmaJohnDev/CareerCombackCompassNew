@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Navbar from "./Navbar";
 import Footer from "./Footer";
 
 export default function Services() {
@@ -45,7 +44,6 @@ export default function Services() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <div className="min-h-screen p-6 text-white bg-gradient-to-br from-black to-gray-700">
         <h1 className="text-3xl font-bold text-center mb-8">Our Services</h1>
 
