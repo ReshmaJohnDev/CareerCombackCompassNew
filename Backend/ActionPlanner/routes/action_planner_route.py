@@ -1,107 +1,88 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query,status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
-from ..schema.pydantic_models  import GoalUpdate,GoalOut
-from ..models.data_models import Goal
+from ..schema.pydantic_models  import TaskCreate, TaskRead, SubTaskCreate
+from ..models.data_models import Task, SubTask
 from ..data_manager.sqlite_data_manager import get_session
-from . import crud
 from sqlalchemy.exc import IntegrityError
 
 
 router = APIRouter(
-    prefix="/goals",
-    tags=["Goals Tracker"]
+    prefix="/tasks",
+    tags=["Action Planner"]
 )
 
 
-@router.get("/", response_model=List[GoalOut])
-def read_goals(
-        db: Session = Depends(get_session)
-):
-    query = db.query(Jobs)
-    if company:
-        # Use case-insensitive matching with wildcards, e.g. to filter companies that contain the string
-        query = query.filter(Jobs.company.ilike(f"%{company}%"))
-    if status:
-        query = query.filter(Jobs.status.ilike(f"%{status}%"))
-    if applied_date:
-        query = query.filter(Jobs.applied_date == applied_date)
+@router.post("/", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
+def create_task(task_in: TaskCreate, db: Session = Depends(get_session)):
+    task = Task(
+        title=task_in.title,
+        description=task_in.description,
+        completed=task_in.completed,
+        reminder=task_in.reminder,
+        reminder_email=str(task_in.reminder_email) if task_in.reminder_email else None,
+        reminder_enabled=task_in.reminder_enabled,
+    )
+    db.add(task)
+    db.flush()  # To get task.id before adding subtasks
 
-    jobs = query.all()
-    return jobs
+    for subtask_in in task_in.subtasks:
+        subtask = SubTask(
+            title=subtask_in.title,
+            completed=subtask_in.completed,
+            task=task,
+        )
+        db.add(subtask)
 
-@router.post("/jobs/", response_model=JobResponse)
-def create_job(job: JobCreate,  db: Session = Depends(get_session)):
-    #model.dump() is a pydantic method to convert  a Pydantic model into a standard
-    # Python dictionary.
-    #unpacking is performed
-    job_data = job.model_dump()
+    db.commit()
+    db.refresh(task)
+    return task
 
-    new_job = Jobs(**job_data)  # Create new job using the data passed in the request
-    db.add(new_job)
-    try:
-        db.commit()
-        db.refresh(new_job)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=409,
-                            detail="Duplicate job entry for this title and company.")
-    finally:
-        db.close()  # Ensure the session is closed after the operation
-    return new_job
+# Get all tasks
+@router.get("/", response_model=List[TaskRead])
+def read_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
+    tasks = db.query(Task).offset(skip).limit(limit).all()
+    return tasks
 
-@router.get("/jobs/{job_id}", response_model=JobResponse)
-def read_job(job_id: int,db: Session = Depends(get_session)):
-    try:
-        job = db.query(Jobs).filter(Jobs.id == job_id).first()
+# Get task by ID
+@router.get("/{task_id}", response_model=TaskRead)
+def read_task(task_id: int, db: Session = Depends(get_session)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
 
-        if job is None:
-            raise HTTPException(status_code=404, detail="Job not found")
-
-    except HTTPException as http_error:
-        # Handle known errors like "Job not found"
-        raise http_error
-    return job
-
-
-@router.delete("/jobs/{job_id}", status_code=204)
-def delete_job(job_id: int, db: Session = Depends(get_session)):
-    # Fetch the job from the database
-    job = db.query(Jobs).filter(Jobs.id == job_id).first()
-
-    if job is None:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    # Delete the job from the database
-    db.delete(job)
-    db.commit()  # Commit the transaction
-
-    # Return no content (HTTP 204)
-    return None
+# Update task completion status
+@router.patch("/{task_id}/complete", response_model=TaskRead)
+def update_task_completion(task_id: int, completed: bool, db: Session = Depends(get_session)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.completed = completed
+    db.commit()
+    db.refresh(task)
+    return task
 
 
-@router.put("/jobs/{job_id}", response_model=JobResponse)
-def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_session)):
-    try:
-        job = db.query(Jobs).filter(Jobs.id == job_id).first()
-        if job is None:
-            raise HTTPException(status_code=404, detail="Job not found")
-
-        job.title = updated_job.title
-        job.company = updated_job.company
-        job.applied_date = updated_job.applied_date
-        job.application_link = updated_job.application_link
-        job.status = updated_job.status
-        job.notes = updated_job.notes
-        job.follow_up_date = updated_job.follow_up_date
-
-        db.commit()
-        db.refresh(job)
-
-    except Exception as e:
-        db.rollback()  # Rollback any changes made in the transaction
-        raise HTTPException(status_code=500, detail="An error occurred while updating the job.")
-    return job
+ # Update subtask completion status
+@router.patch("/subtasks/{subtask_id}/complete", response_model=SubTaskCreate)
+def update_subtask_completion(subtask_id: int, completed: bool, db: Session = Depends(get_session)):
+    subtask = db.query(SubTask).filter(SubTask.id == subtask_id).first()
+    if not subtask:
+        raise HTTPException(status_code=404, detail="Subtask not found")
+    subtask.completed = completed
+    db.commit()
+    db.refresh(subtask)
+    return subtask
 
 
+# Delete a task (and cascade delete subtasks)
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: int, db: Session = Depends(get_session)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    db.delete(task)
+    db.commit()
+    return

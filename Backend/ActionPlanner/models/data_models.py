@@ -1,22 +1,32 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    Column, Integer, String, Boolean, DateTime, ForeignKey
+)
 from shared.base import Base
+from sqlalchemy.orm import relationship
 
-
-class Goal(Base):
-    __tablename__ = 'goals'
-
-    # Define columns
+class Task(Base):
+    __tablename__ = "tasks"
+    
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    title = Column(String, nullable=False,index=True)
-    description = Column(String, nullable=False)
-    deadline = Column(DateTime, nullable=False)
-    reminder = Column(DateTime, nullable=False)
-    subtasks = Column(JSON, nullable=False, default=[])
-    status = Column(String, nullable=False, default="Pending")
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    completed = Column(Boolean, default=False, nullable=False)
+    
+    # Reminder on main task only
+    reminder = Column(DateTime, nullable=True)
+    reminder_email = Column(String, nullable=True)
+    reminder_enabled = Column(Boolean, default=False, nullable=False)
 
-      __table_args__ = (
-        UniqueConstraint('title', name='uq_goal_title'),
-    )
+    # One-to-many relation with SubTask
+    subtasks = relationship("SubTask", back_populates="task", cascade="all, delete-orphan")
 
-
+class SubTask(Base):
+    __tablename__ = "subtasks"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False)
+    title = Column(String, nullable=False)
+    completed = Column(Boolean, default=False, nullable=False)
+    
+    # Relationship back to parent task
+    task = relationship("Task", back_populates="subtasks")

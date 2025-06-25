@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Services from "./pages/Services";
 import Landing from "./pages/Landing";
 import GapStoryBuilder from "./pages/GapGenerator/GapStoryBuilder";
-import ActionPlanner from "./pages/ActionPlanner";
+import ActionPlanner from "./pages/ActionPlanner/ActionPlanner";
 import JobTracker from "./pages/JobTracker/JobTracker";
 import Chatbot from "./pages/Chatbot";
 import "./index.css";

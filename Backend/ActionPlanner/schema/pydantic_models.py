@@ -1,37 +1,42 @@
-from pydantic import BaseModel
-from datetime import datetime
 from typing import List, Optional
+from datetime import datetime
+from pydantic import BaseModel, EmailStr
 
-# Define structure of a single subtask
-class Subtask(BaseModel):
+# Shared properties for SubTask
+class SubTaskBase(BaseModel):
     title: str
-    completed: bool = False
+    completed: Optional[bool] = False
 
-# Base class for Goal (shared fields)
-class GoalBase(BaseModel):
-    title: str
-    description: str
-    deadline: datetime
-    reminder: datetime
-    status: Optional[str] = "Pending"  # default if not provided
-    subtasks: List[Subtask] = []       # list of subtasks in JSON format
-
-# For creating new goals
-class GoalCreate(GoalBase):
+# What we receive when creating a subtask
+class SubTaskCreate(SubTaskBase):
     pass
 
-# For updating goals (fields optional)
-class GoalUpdate(BaseModel):
-    title: Optional[str]
-    description: Optional[str]
-    deadline: Optional[datetime]
-    reminder: Optional[datetime]
-    status: Optional[str]
-    subtasks: Optional[List[Subtask]]
-
-# For reading/returning goals
-class GoalOut(GoalBase):
+# What we send back: subtask + id + task relation omitted here to avoid recursion
+class SubTaskRead(SubTaskBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+
+# Shared properties for Task
+class TaskBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    completed: Optional[bool] = False
+    reminder: Optional[datetime] = None
+    reminder_email: Optional[EmailStr] = None
+    reminder_enabled: bool = False
+
+# Properties to receive on creation
+class TaskCreate(TaskBase):
+    # subtasks can be created together optionally
+    subtasks: Optional[List[SubTaskCreate]] = []
+
+# Properties returned from DB, with id and subtasks included
+class TaskRead(TaskBase):
+    id: int
+    subtasks: List[SubTaskRead] = []
 
     class Config:
         orm_mode = True

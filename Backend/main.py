@@ -4,7 +4,7 @@ from InterviewLog.routes.interview_log_route import router as interviewLog_route
 from GapGenerator.routes.gap_routes import router as gap_router
 from Login.routes.login_routes import router as login_router
 from fastapi.middleware.cors import CORSMiddleware
-#from GapGenerator.routes.gap_routes import router as gap_router
+from ActionPlanner.routes.action_planner_route import router as action_planner
 
 #Initializing the Fast API
 app = FastAPI()
@@ -24,6 +24,7 @@ app.include_router(job_router)
 app.include_router(interviewLog_router)
 app.include_router(login_router)
 app.include_router(gap_router)
+app.include_router(action_planner)
 
 @app.get("/")
 def root():

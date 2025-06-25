@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from shared.base import Base
+from ..models.data_models import Base
 from config.config import DATABASE_URI
-from ActionPlaner.models.data_models import Goal
+from ActionPlanner.models.data_models import Task,SubTask
 
 
 
@@ -13,7 +13,6 @@ SessionLocal = sessionmaker(bind=engine)
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
-
 
 
 # Create tables if they don't exist
