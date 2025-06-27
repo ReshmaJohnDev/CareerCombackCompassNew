@@ -40,3 +40,17 @@ class TaskRead(TaskBase):
 
     class Config:
         orm_mode = True
+
+class SubTaskUpdate(BaseModel):
+    id: Optional[int]
+    title: Optional[str] = None
+    completed: Optional[bool] = None
+
+class TaskUpdate(BaseModel):
+    title: Optional[str]
+    description: Optional[str] = None
+    completed: Optional[bool] = False
+    reminder: Optional[datetime] = None
+    reminder_email: Optional[EmailStr] = None
+    reminder_enabled: Optional[bool] = False
+    subtasks: Optional[List[SubTaskUpdate]] = []

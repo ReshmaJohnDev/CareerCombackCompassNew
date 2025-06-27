@@ -80,7 +80,13 @@ export default function JobTracker() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-black to-gray-800 text-white">
+    <div
+      className="flex flex-col min-h-screen text-white"
+      style={{
+        background: "linear-gradient(to bottom right, #444343,#dddddd",
+        color: "#222", // optional: improves contrast
+      }}
+    >
       {/* <NavBar /> */}
       <main className="flex-1 p-6 max-w-full overflow-x-auto">
         <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">

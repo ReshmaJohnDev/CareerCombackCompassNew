@@ -44,7 +44,13 @@ export default function Services() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="min-h-screen p-6 text-white bg-gradient-to-br from-black to-gray-700">
+      <div
+        className="min-h-screen p-6 text-white"
+        style={{
+          background: "linear-gradient(to bottom right, #444343,#dddddd",
+          color: "#222", // optional: improves contrast
+        }}
+      >
         <h1 className="text-3xl font-bold text-center mb-8">Our Services</h1>
 
         <div className="carousel w-full max-w-6xl mx-auto">

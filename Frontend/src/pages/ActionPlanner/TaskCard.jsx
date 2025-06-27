@@ -5,10 +5,14 @@ import {
   updateTaskStatus,
   fetchTaskById,
   deleteTask,
+  updateTask,
 } from "./util/Task";
+import EditTask from "./EditTask";
 
 const TaskCard = ({ task, onUpdate }) => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   const completedSubtasksCount = task.subtasks.filter(
     (st) => st.completed
   ).length;
@@ -44,6 +48,16 @@ const TaskCard = ({ task, onUpdate }) => {
     }
   };
 
+  const handleSaveTask = async (updatedTask) => {
+    try {
+      await updateTask(updatedTask);
+      onUpdate?.();
+      setShowEditModal(false);
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
+
   return (
     <div className="w-80 bg-gradient-to-r from-gray-700 via-gray-900 to-black p-5 rounded-2xl shadow-lg flex flex-col border border-gray-700 transition-transform hover:scale-[1.03]">
       <button
@@ -52,6 +66,13 @@ const TaskCard = ({ task, onUpdate }) => {
         title="Delete Task"
       >
         <Trash2 className="w-5 h-5" />
+      </button>
+      <button
+        className="absolute top-3 right-10 text-white hover:text-blue-400"
+        onClick={() => setShowEditModal(true)}
+        title="Edit Task"
+      >
+        ✏️
       </button>
 
       <div className="flex justify-between items-start mb-2">
@@ -93,7 +114,9 @@ const TaskCard = ({ task, onUpdate }) => {
       </div>
 
       {task.description && (
-        <p className="text-gray-700 text-sm mt-1">{task.description}</p>
+        <p className="text-sm font-medium text-white-800 mb-1">
+          {task.description}
+        </p>
       )}
 
       <div className="mt-4">
@@ -113,7 +136,9 @@ const TaskCard = ({ task, onUpdate }) => {
               />
               <span
                 className={
-                  subtask.completed ? "line-through text-gray-400" : ""
+                  subtask.completed
+                    ? "line-through space-y-2 text-green-800 text-sm"
+                    : "text-white"
                 }
               >
                 {subtask.title}
@@ -146,6 +171,13 @@ const TaskCard = ({ task, onUpdate }) => {
             </div>
           </div>
         </div>
+      )}
+      {showEditModal && (
+        <EditTask
+          task={task}
+          onClose={() => setShowEditModal(false)}
+          onSave={handleSaveTask}
+        />
       )}
     </div>
   );

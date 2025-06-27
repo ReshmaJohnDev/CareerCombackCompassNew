@@ -16,6 +16,7 @@ class Task(Base):
     reminder = Column(DateTime, nullable=True)
     reminder_email = Column(String, nullable=True)
     reminder_enabled = Column(Boolean, default=False, nullable=False)
+    reminder_sent = Column(Boolean, default=False, nullable=False)
 
     # One-to-many relation with SubTask
     subtasks = relationship("SubTask", back_populates="task", cascade="all, delete-orphan")

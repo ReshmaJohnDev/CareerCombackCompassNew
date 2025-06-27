@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query,status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
-from ..schema.pydantic_models  import TaskCreate, TaskRead, SubTaskCreate
+from ..schema.pydantic_models  import TaskCreate, TaskRead, SubTaskCreate,TaskUpdate
 from ..models.data_models import Task, SubTask
 from ..data_manager.sqlite_data_manager import get_session
 from sqlalchemy.exc import IntegrityError
@@ -86,3 +86,46 @@ def delete_task(task_id: int, db: Session = Depends(get_session)):
     db.delete(task)
     db.commit()
     return
+
+@router.put("/{task_id}", response_model=TaskRead)
+def update_task(task_id: int, task_in: TaskUpdate, db: Session = Depends(get_session)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Update main task fields
+    for field, value in task_in.dict(exclude_unset=True).items():
+        if field != "subtasks":
+            setattr(task, field, value)
+
+    # Update subtasks
+    if task_in.subtasks is not None:
+        existing_subtasks = {sub.id: sub for sub in task.subtasks}
+
+        updated_ids = set()
+        for subtask_data in task_in.subtasks:
+            if subtask_data.id is not None and subtask_data.id in existing_subtasks:
+                # Update existing subtask
+                sub = existing_subtasks[subtask_data.id]
+                if subtask_data.title is not None:
+                    sub.title = subtask_data.title
+                if subtask_data.completed is not None:
+                    sub.completed = subtask_data.completed
+                updated_ids.add(sub.id)
+            else:
+                # Add new subtask
+                new_sub = SubTask(
+                    title=subtask_data.title,
+                    completed=subtask_data.completed or False,
+                    task_id=task.id
+                )
+                db.add(new_sub)
+
+        # Delete subtasks not included in update
+        for sub_id in existing_subtasks:
+            if sub_id not in updated_ids:
+                db.delete(existing_subtasks[sub_id])
+
+    db.commit()
+    db.refresh(task)
+    return task

@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Navbar from "./pages/Navbar";
 import ManualForm from "./pages/GapGenerator/ManualForm";
 import UploadForm from "./pages/GapGenerator/UploadForm";
+import LearnMore from "./pages/LearnMore";
 
 function App() {
   const [username, setUsername] = useState(localStorage.getItem("user_name"));
@@ -59,6 +60,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/manaul" element={<ManualForm />} />
         <Route path="/upload" element={<UploadForm />} />
+        <Route path="/learn_more" element={<LearnMore />} />
       </Routes>
     </Router>
   );

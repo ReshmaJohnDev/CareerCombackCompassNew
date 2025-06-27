@@ -10,7 +10,7 @@ export default function GetStarted() {
       </p>
       <div className="mt-6 space-x-4">
         <Link to="/login">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded">
+          <button className="bg-gray-600 text-white px-4 py-2 rounded">
             Login
           </button>
         </Link>
