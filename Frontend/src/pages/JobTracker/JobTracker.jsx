@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import api from "../../api";
 import NavBar from "../Navbar";
 import { KanbanColumn } from "./KanbanColumn";
 import Footer from "../Footer";
+import { AppContext } from "../../context/AppContext";
 
 const columnsOrder = [
   "Wish List",
@@ -12,7 +13,8 @@ const columnsOrder = [
   "Rejected",
 ];
 
-export default function JobTracker({ darkMode }) {
+export default function JobTracker() {
+  const { darkMode } = useContext(AppContext);
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(false);

@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
+import { AppContext } from "../context/AppContext";
 
-export default function GetStarted({ darkMode }) {
+export default function GetStarted() {
+  const { darkMode } = useContext(AppContext);
   return (
     <div className="flex flex-col min-h-screen">
       <div

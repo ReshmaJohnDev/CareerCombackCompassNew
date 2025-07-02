@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Navbar from "../Navbar";
 import { FiDownload, FiEdit } from "react-icons/fi";
 import ManualForm from "./ManualForm";
 import UploadForm from "./UploadForm";
 import Footer from "../Footer";
+import { AppContext } from "../../context/AppContext";
 
-export default function GapStoryBuilder({ darkMode }) {
+export default function GapStoryBuilder() {
+  const { darkMode } = useContext(AppContext);
   const [mode, setMode] = useState("");
   return (
     <div className="flex flex-col min-h-screen">

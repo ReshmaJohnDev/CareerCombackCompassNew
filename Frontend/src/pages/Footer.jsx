@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AppContext } from "../context/AppContext";
 
-export default function Footer({ darkMode }) {
+export default function Footer() {
+  const { darkMode } = useContext(AppContext);
   return (
     <footer
       className="shadow-inner py-6 text-center"

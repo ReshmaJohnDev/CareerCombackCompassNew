@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "./Footer";
+import { AppContext } from "../context/AppContext";
 
-export default function LearnMore({ darkMode }) {
+export default function LearnMore() {
+  const { darkMode } = useContext(AppContext);
   const navigate = useNavigate();
   const [visible, setVisible] = useState({
     intro: false,

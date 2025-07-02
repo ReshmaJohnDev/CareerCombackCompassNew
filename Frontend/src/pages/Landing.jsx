@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
+import { AppContext } from "../context/AppContext";
 
-export default function Landing({ darkMode }) {
+export default function Landing() {
+  const { darkMode } = useContext(AppContext);
   const [showParagraph, setShowParagraph] = useState(false);
   const navigate = useNavigate();
 

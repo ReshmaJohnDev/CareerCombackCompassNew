@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
+import { AppContext } from "../context/AppContext";
 
-export default function Navbar({
-  username,
-  setUsername,
-  darkMode,
-  setDarkMode,
-}) {
+export default function Navbar() {
+  const { username, setUsername, darkMode, setDarkMode } =
+    useContext(AppContext);
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
 

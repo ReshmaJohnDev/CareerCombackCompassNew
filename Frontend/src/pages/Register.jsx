@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { AppContext } from "../context/AppContext";
 
-export default function Register({ darkMode }) {
+export default function Register() {
+  const { darkMode } = useContext(AppContext);
   const [formData, setFormData] = useState({
     name: "",
     email: "",

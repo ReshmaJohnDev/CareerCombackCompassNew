@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { AppContext } from "../context/AppContext";
 
-export default function Login({ setUsername, darkMode }) {
+export default function Login() {
+  const { setUsername, darkMode } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

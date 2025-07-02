@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
+import { AppContext } from "../context/AppContext";
 
-export default function Services({ darkMode }) {
+export default function Services() {
+  const { darkMode } = useContext(AppContext);
   const features = [
     {
       title: "Gap Story Builder",
