@@ -10,7 +10,7 @@ from ActionPlanner.scheduler.scheduler import start, shutdown
 #Initializing the Fast API
 app = FastAPI()
 origins = [
-    "http://localhost:5173", 
+    "https://career-comback-frontend.onrender.com", 
 ]
 
 app.add_middleware(
