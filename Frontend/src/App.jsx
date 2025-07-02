@@ -11,8 +11,6 @@ import GetStarted from "./pages/GetStarted";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Navbar from "./pages/Navbar";
-import ManualForm from "./pages/GapGenerator/ManualForm";
-import UploadForm from "./pages/GapGenerator/UploadForm";
 import LearnMore from "./pages/LearnMore";
 
 function App() {
@@ -48,19 +46,33 @@ function App() {
         darkMode={darkMode}
         setDarkMode={setDarkMode}
       />
+
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="services" element={<Services />} />
-        <Route path="/gap-story" element={<GapStoryBuilder />} />
-        <Route path="/planner" element={<ActionPlanner />} />
-        <Route path="/job-tracker" element={<JobTracker />} />
+        <Route path="/" element={<Landing darkMode={darkMode} />} />
+        <Route path="services" element={<Services darkMode={darkMode} />} />
+        <Route
+          path="/gap-story"
+          element={<GapStoryBuilder darkMode={darkMode} />}
+        />
+        <Route
+          path="/planner"
+          element={<ActionPlanner darkMode={darkMode} />}
+        />
+        <Route
+          path="/job-tracker"
+          element={<JobTracker darkMode={darkMode} />}
+        />
         <Route path="/chatbot" element={<Chatbot />} />
-        <Route path="/get_started" element={<GetStarted />} />
-        <Route path="/login" element={<Login setUsername={setUsername} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/manaul" element={<ManualForm />} />
-        <Route path="/upload" element={<UploadForm />} />
-        <Route path="/learn_more" element={<LearnMore />} />
+        <Route
+          path="/get_started"
+          element={<GetStarted darkMode={darkMode} />}
+        />
+        <Route
+          path="/login"
+          element={<Login setUsername={setUsername} darkMode={darkMode} />}
+        />
+        <Route path="/register" element={<Register darkMode={darkMode} />} />
+        <Route path="/learn_more" element={<LearnMore darkMode={darkMode} />} />
       </Routes>
     </Router>
   );

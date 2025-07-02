@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 
-export default function Services() {
+export default function Services({ darkMode }) {
   const features = [
     {
       title: "Gap Story Builder",
@@ -21,12 +21,6 @@ export default function Services() {
       description: "Track jobs, statuses, and follow-ups easily.",
       path: "/job-tracker",
       img: "/job_tracker.png",
-    },
-    {
-      title: "Interview Reflection Log",
-      description: "Capture lessons and feedback from interviews.",
-      path: "/interview-log",
-      img: "/reflection.png",
     },
     {
       title: "Career Advice Chatbot",
@@ -65,16 +59,55 @@ export default function Services() {
               >
                 {/* Image with overlay */}
                 <Link to={feature.path}>
-                  <div className="relative w-full   flex justify-between">
+                  <div className="relative w-full flex">
                     <img
                       src={feature.img}
                       alt={feature.title}
-                      className="w-full h-96 object-cover"
+                      className="w-1/2 h-96 object-cover"
                     />
-                    <div className="bg-opacity-50 flex flex-col  bg-white justify-center p-6 text-black">
-                      <h2 className="text-2xl font-bold">{feature.title}</h2>
-                      <p className="text-sm">{feature.description}</p>
+                    <div
+                      className="w-1/2 flex flex-col justify-center p-6 text-black 
+    bg-opacity-90 shadow-lg
+    animate-slideFadeIn
+    border border-gray-300 dark:border-gray-600
+    transition-transform duration-300 ease-in-out
+    hover:scale-105 hover:brightness-110"
+                      style={{
+                        background: darkMode
+                          ? "linear-gradient(to top right, #222222, #444444)"
+                          : "linear-gradient(to top right, #dddddd, #444343)",
+                        color: darkMode ? "#f0f0f0" : "#222222",
+                      }}
+                    >
+                      <h2
+                        className="text-3xl font-extrabold mb-2 bg-clip-text 
+      bg-gradient-to-r from-gray-700 via-gray-500 to-gray-900
+      drop-shadow-md"
+                      >
+                        {feature.title}
+                      </h2>
+                      <p className="text-sm leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
+
+                    <style>
+                      {`
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slideFadeIn {
+  animation: slideFadeIn 0.8s ease forwards;
+}
+`}
+                    </style>
                   </div>
                 </Link>
 
@@ -108,7 +141,7 @@ export default function Services() {
           })}
         </div>
       </div>
-      <Footer />
+      <Footer darkMode={darkMode} />
     </div>
   );
 }

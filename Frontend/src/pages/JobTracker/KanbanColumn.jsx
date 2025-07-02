@@ -16,6 +16,7 @@ export const KanbanColumn = ({
   onUpdateJob,
   onDeleteJob,
   loading,
+  darkMode,
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -68,8 +69,16 @@ export const KanbanColumn = ({
   };
 
   return (
-    <div className="w-80 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-lg p-5 flex flex-col border border-gray-700">
-      <h2 className="text-xl font-extrabold text-white text-center mb-5">
+    <div
+      className={`w-80 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-lg p-5 flex flex-col border border-gray-700 ${
+        darkMode ? "bg-black text-gray-100" : "bg-light-gradient text-gray-900"
+      }`}
+    >
+      <h2
+        className={`text-xl font-extrabold text-center mb-5 ${
+          darkMode ? "text-gray-100" : "text-gray-900"
+        }`}
+      >
         {title}
       </h2>
       {loading ? (

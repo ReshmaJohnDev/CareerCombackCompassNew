@@ -4,7 +4,7 @@ import api from "../api";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-export default function Login({ setUsername }) {
+export default function Login({ setUsername, darkMode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -33,9 +33,26 @@ export default function Login({ setUsername }) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* <Navbar /> */}
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full flex items-center max-w-xl bg-gray-800 p-8 rounded-xl shadow-md">
-          <h3 className="text-3xl font-bold text-center text-white mb-6">
+
+      <div
+        className={`p-4 flex flex-col items-center justify-center px-4  min-h-screen transition-colors duration-500 ${
+          darkMode
+            ? "bg-black text-gray-100"
+            : "bg-light-gradient text-gray-900"
+        }`}
+      >
+        <div
+          className={`w-full flex items-center max-w-xl bg-gray-800 p-8 rounded-xl shadow-md ${
+            darkMode
+              ? "bg-black text-gray-100"
+              : "bg-light-gradient text-gray-900"
+          }`}
+        >
+          <h3
+            className={`text-2xl font-extrabold tracking-tight ${
+              darkMode ? "text-gray-100" : "text-gray-900"
+            }`}
+          >
             Login to Your Account
           </h3>
           <form onSubmit={handleLogin} className="space-y-5">

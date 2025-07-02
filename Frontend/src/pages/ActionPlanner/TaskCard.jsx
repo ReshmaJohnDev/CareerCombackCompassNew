@@ -9,7 +9,7 @@ import {
 } from "./util/Task";
 import EditTask from "./EditTask";
 
-const TaskCard = ({ task, onUpdate }) => {
+const TaskCard = ({ task, onUpdate, darkMode }) => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -59,7 +59,11 @@ const TaskCard = ({ task, onUpdate }) => {
   };
 
   return (
-    <div className="w-80 bg-gradient-to-r from-gray-700 via-gray-900 to-black p-5 rounded-2xl shadow-lg flex flex-col border border-gray-700 transition-transform hover:scale-[1.03]">
+    <div
+      className={`bg-gradient-to-r from-gray-700 via-gray-900 to-black rounded-xl shadow-lg cursor-pointer transition duration-300 hover:scale-[1.03] p-5 flex flex-col border border-gray-700 ${
+        darkMode ? "bg-black text-gray-100" : "bg-light-gradient text-gray-900"
+      }`}
+    >
       <button
         className="absolute top-3 right-3 text-white-500 hover:text-red-500"
         onClick={() => setShowDeleteAlert(true)}
@@ -77,7 +81,13 @@ const TaskCard = ({ task, onUpdate }) => {
 
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
-          <h2 className="text-lg font-semibold text-white-900">{task.title}</h2>
+          <h2
+            className={`text-lg font-semibold ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            {task.title}
+          </h2>
           {task.subtasks.length === 0 ? (
             <button
               onClick={handleTaskToggle}
@@ -105,7 +115,11 @@ const TaskCard = ({ task, onUpdate }) => {
                   }}
                 />
               </div>
-              <p className="text-xs text-right text-white-500 mt-1">
+              <p
+                className={`text-xs text-right mt-1 ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 {task.completed ? "Completed" : "In Progress"}
               </p>
             </>
@@ -114,16 +128,28 @@ const TaskCard = ({ task, onUpdate }) => {
       </div>
 
       {task.description && (
-        <p className="text-sm font-medium text-white-800 mb-1">
+        <p
+          className={`text-sm font-medium ${
+            darkMode ? "text-white" : "text-gray-800"
+          }`}
+        >
           {task.description}
         </p>
       )}
 
       <div className="mt-4">
-        <p className="text-sm font-medium text-white-800 mb-1">
+        <p
+          className={`text-sm font-medium mb-1 ${
+            darkMode ? "text-white" : "text-gray-800"
+          }`}
+        >
           Subtasks ({completedSubtasksCount}/{task.subtasks.length})
         </p>
-        <ul className="space-y-2 text-gray-800 text-sm">
+        <ul
+          className={`space-y-2 text-sm ${
+            darkMode ? "text-gray-200" : "text-gray-800"
+          }`}
+        >
           {task.subtasks.map((subtask) => (
             <li key={subtask.id} className="flex items-center">
               <input
@@ -137,8 +163,10 @@ const TaskCard = ({ task, onUpdate }) => {
               <span
                 className={
                   subtask.completed
-                    ? "line-through space-y-2 text-green-800 text-sm"
-                    : "text-white"
+                    ? `${
+                        darkMode ? "text-green-300" : "text-green-800"
+                      } line-through`
+                    : `${darkMode ? "text-gray-200" : "text-gray-800"}`
                 }
               >
                 {subtask.title}
@@ -150,7 +178,13 @@ const TaskCard = ({ task, onUpdate }) => {
 
       {showDeleteAlert && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <div className="bg-white p-6 rounded-xl max-w-sm w-full shadow-lg text-gray-800">
+          <div
+            className={`bg-${
+              darkMode ? "gray-800" : "white"
+            } p-6 rounded-xl max-w-sm w-full shadow-lg ${
+              darkMode ? "text-gray-100" : "text-gray-800"
+            }`}
+          >
             <p className="mb-4">Are you sure you want to delete this task?</p>
             <div className="flex justify-end gap-4">
               <button
@@ -164,7 +198,11 @@ const TaskCard = ({ task, onUpdate }) => {
               </button>
               <button
                 onClick={() => setShowDeleteAlert(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg font-semibold"
+                className={`px-4 py-2 rounded-lg font-semibold ${
+                  darkMode
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-red-600 hover:bg-red-700 text-white"
+                }`}
               >
                 Cancel
               </button>

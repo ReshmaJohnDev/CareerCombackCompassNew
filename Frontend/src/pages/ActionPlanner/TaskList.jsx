@@ -9,7 +9,7 @@ import {
   deleteTask,
 } from "./util/Task";
 
-export default function TaskList() {
+export default function TaskList({ darkMode }) {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState(null);
@@ -84,12 +84,22 @@ export default function TaskList() {
   };
 
   return (
-    <div className="p-4 flex flex-col items-center bg-black min-h-screen">
+    <div
+      className={`p-4 flex flex-col items-center min-h-screen transition-colors duration-500 ${
+        darkMode ? "bg-black text-gray-100" : "bg-light-gradient text-gray-900"
+      }`}
+    >
       <h1 className="text-2xl font-bold mb-6">My Tasks</h1>
 
       <button
         onClick={() => setShowForm(!showForm)}
-        className="text-gray-400 hover:text-gray-500 font-semibold mb-4"
+        className={`font-semibold mb-4 px-6 py-2 rounded-xl shadow-lg 
+    transition duration-300 hover:scale-[1.03] 
+    ${
+      darkMode
+        ? "bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white"
+        : "bg-light-gradient text-black"
+    }`}
       >
         {showForm ? "Cancel" : "Add Task"}
       </button>
@@ -99,7 +109,12 @@ export default function TaskList() {
         <form
           ref={formRef}
           onSubmit={handleAddTask}
-          className="bg-gray-800 p-5 rounded-xl shadow-inner space-y-4 text-sm text-gray-300 mb-8 w-full max-w-md"
+          className={`p-5 rounded-xl shadow-inner space-y-4 text-sm mb-8 w-full max-w-md
+    ${
+      darkMode
+        ? "bg-gray-800 text-gray-300"
+        : "bg-white text-gray-800 border border-gray-200"
+    }`}
         >
           <input
             type="text"
@@ -206,7 +221,12 @@ export default function TaskList() {
       {!loading && !error && tasks.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} onUpdate={loadTasks} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              onUpdate={loadTasks}
+              darkMode={darkMode}
+            />
           ))}
         </div>
       )}

@@ -1,9 +1,19 @@
 import React from "react";
 
-export default function Footer() {
+export default function Footer({ darkMode }) {
   return (
-    <div className="h-16 bg-gradient-to-r from-gray-800 to-gray-400 flex items-center justify-center text-white px-8">
-      <p>© 2025 Comeback Compass. All rights reserved.</p>
-    </div>
+    <footer
+      className="shadow-inner py-6 text-center"
+      style={{
+        background: darkMode
+          ? "linear-gradient(to top right, #222222, #444444)"
+          : "linear-gradient(to top right, #dddddd, #444343)",
+        color: darkMode ? "#f0f0f0" : "#222222",
+      }}
+    >
+      <p className="text-sm">
+        &copy; {new Date().getFullYear()} Career Comeback. All rights reserved.
+      </p>
+    </footer>
   );
 }

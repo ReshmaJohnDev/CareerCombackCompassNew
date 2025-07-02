@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 
-export default function LearnMore() {
+export default function LearnMore({ darkMode }) {
   const navigate = useNavigate();
   const [visible, setVisible] = useState({
     intro: false,
@@ -35,11 +35,9 @@ export default function LearnMore() {
 
   return (
     <div
-      className="min-h-screen p-6 text-white"
-      style={{
-        background: "linear-gradient(to bottom right, #444343,#dddddd",
-        color: "#222", // optional: improves contrast
-      }}
+      className={`min-h-screen p-6 ${
+        darkMode ? "bg-black text-gray-100" : "bg-light-gradient text-gray-900"
+      }`}
     >
       <div className="flex-grow max-w-4xl mx-auto px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24 py-16">
         <h1
@@ -136,13 +134,21 @@ export default function LearnMore() {
         >
           <button
             onClick={handleGetStarted}
-            className="bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:ring-gray-600 focus:ring-opacity-50 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105"
+            className={` hover:text-gray-300 font-semibold py-3 px-6 rounded-lg transition underline ${
+              darkMode
+                ? "bg-gray-200 text-black hover:bg-gray-300"
+                : "bg-gray-700 text-white hover:bg-gray-800"
+            }`}
           >
             Get Started
           </button>
           <button
             onClick={() => navigate("/")}
-            className="text-gray-400 hover:text-gray-300 font-semibold py-3 px-6 rounded-lg transition underline"
+            className={` hover:text-gray-300 font-semibold py-3 px-6 rounded-lg transition underline ${
+              darkMode
+                ? "bg-gray-200 text-black hover:bg-gray-300"
+                : "bg-gray-700 text-white hover:bg-gray-800"
+            }`}
           >
             Back to Home
           </button>
