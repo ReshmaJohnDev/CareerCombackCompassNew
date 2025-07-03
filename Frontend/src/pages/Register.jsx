@@ -15,6 +15,7 @@ export default function Register() {
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,10 +25,11 @@ export default function Register() {
     e.preventDefault();
     try {
       const response = await api.post("/auth/register", formData);
-      alert(response.data.message || "Registration successful");
+      setSuccess(response.data.message || "Registration successful");
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.detail || "Registration failed");
+      setSuccess("");
     }
   };
 
@@ -104,6 +106,11 @@ export default function Register() {
                   Login
                 </a>
               </p>
+              {success && (
+                <p className="text-green-500 text-sm text-center mt-2">
+                  {success}
+                </p>
+              )}
             </fieldset>
           </form>
         </div>

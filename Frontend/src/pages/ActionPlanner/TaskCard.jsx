@@ -65,14 +65,14 @@ const TaskCard = ({ task, onUpdate, darkMode }) => {
       }`}
     >
       <button
-        className="absolute top-3 right-3 text-white-500 hover:text-red-500"
+        className="relative top-3 right-3 text-white-500 hover:text-red-500"
         onClick={() => setShowDeleteAlert(true)}
         title="Delete Task"
       >
         <Trash2 className="w-5 h-5" />
       </button>
       <button
-        className="absolute top-3 right-10 text-white hover:text-blue-400"
+        className="relative top-3 right-10 text-white hover:text-blue-400"
         onClick={() => setShowEditModal(true)}
         title="Edit Task"
       >
