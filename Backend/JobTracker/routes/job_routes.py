@@ -96,14 +96,6 @@ def update_job(job_id: int, updated_job: JobCreate,db: Session = Depends(get_ses
         for key, value in update_data.items():
             setattr(job, key, value)
 
-        # job.title = updated_job.title
-        # job.company = updated_job.company
-        # job.applied_date = updated_job.applied_date
-        # job.application_link = updated_job.application_link
-        # job.status = updated_job.status
-        # job.notes = updated_job.notes
-        # job.follow_up_date = updated_job.follow_up_date
-
         db.commit()
         db.refresh(job)
         return job
