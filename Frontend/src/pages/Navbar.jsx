@@ -18,84 +18,20 @@ export default function Navbar() {
   };
 
   return (
-    // <header
-    //   className="shadow-md"
-    //   style={{
-    //     background: "linear-gradient(to bottom right, #444343,#dddddd",
-    //     color: "#222",
-    //   }}
-    // >
-    //   <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-white">
-    //     <nav className="flex space-x-8 font-semibold text-lg">
-    //       <Link
-    //         to="/"
-    //         className="hover:text-gray-300 transition-colors duration-300"
-    //       >
-    //         Home
-    //       </Link>
-    //       <Link
-    //         to="/services"
-    //         className="hover:text-gray-300 transition-colors duration-300"
-    //       >
-    //         Services
-    //       </Link>
-    //     </nav>
-
-    //     <div className="flex items-center space-x-6">
-    //       {/* Dark Mode Toggle */}
-    //       <button
-    //         onClick={() => setDarkMode(!darkMode)}
-    //         className="p-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
-    //         aria-label="Toggle Dark Mode"
-    //       >
-    //         {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-    //       </button>
-
-    //       {/* User Menu */}
-    //       <div className="relative">
-    //         {!username ? (
-    //           <Link
-    //             to="/login"
-    //             className="font-semibold hover:text-gray-300 transition-colors duration-300"
-    //           >
-    //             Login
-    //           </Link>
-    //         ) : (
-    //           <>
-    //             <button
-    //               onClick={() => setShowMenu(!showMenu)}
-    //               className="font-semibold flex items-center space-x-1 focus:outline-none"
-    //             >
-    //               <span>{username}</span>
-    //               <span className="transform transition-transform duration-200">
-    //                 ▼
-    //               </span>
-    //             </button>
-
-    //             {showMenu && (
-    //               <div className="absolute right-0 mt-2 w-36 bg-white text-gray-900 rounded-lg shadow-lg z-20">
-    //                 <button
-    //                   onClick={handleLogout}
-    //                   className="block w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors duration-200 rounded-b-lg"
-    //                 >
-    //                   Logout
-    //                 </button>
-    //               </div>
-    //             )}
-    //           </>
-    //         )}
-    //       </div>
-    //     </div>
-    //   </div>
-    // </header>
-
     <header
-      className="shadow-md"
+      className="sticky top-0 z-50 w-full"
       style={{
-        background: darkMode
-          ? "linear-gradient(to bottom right, #222222, #444444)"
-          : "linear-gradient(to bottom right, #444343, #dddddd)",
+        backgroundColor: darkMode
+          ? "rgba(18, 18, 18, 0.8)"
+          : "rgba(255, 255, 255, 0.15)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+        borderBottom: darkMode
+          ? "1px solid rgba(255, 255, 255, 0.1)"
+          : "1px solid rgba(0, 0, 0, 0.05)",
         color: darkMode ? "#f0f0f0" : "#222222",
+        transition:
+          "background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease",
       }}
     >
       <div
@@ -109,19 +45,39 @@ export default function Navbar() {
               darkMode ? "text-gray-200" : "text-gray-800"
             }`}
           >
-            Home
+            <span className="text-xl font-bold bg-gradient-to-br from-blue-600 to-gray-400  bg-clip-text text-transparent">
+              Career Comeback Compass
+            </span>
           </Link>
+        </nav>
+
+        <div className="flex items-center space-x-6">
           <Link
-            to="/services"
-            className={`hover:text-gray-300 transition-colors duration-300 ${
+            to="/services#features"
+            onClick={(e) => {
+              e.preventDefault();
+              const featuresSection = document.getElementById("features");
+              if (featuresSection) {
+                featuresSection.scrollIntoView({ behavior: "smooth" });
+              } else {
+                // Navigate to landing page with anchor
+                window.location.href = "/#features";
+              }
+            }}
+            className={`font-semibold hover:text-gray-300 transition-colors duration-300 ${
               darkMode ? "text-gray-200" : "text-gray-800"
             }`}
           >
             Services
           </Link>
-        </nav>
-
-        <div className="flex items-center space-x-6">
+          <Link
+            to="/dashboard"
+            className={`font-semibold hover:text-gray-300 transition-colors duration-300 ${
+              darkMode ? "text-gray-200" : "text-gray-800"
+            }`}
+          >
+            Dashboard
+          </Link>
           {/* Dark Mode Toggle */}
           <button
             onClick={() => setDarkMode(!darkMode)}

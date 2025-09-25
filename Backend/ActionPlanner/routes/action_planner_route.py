@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Query,status
+from fastapi import APIRouter, Depends, HTTPException, Query,status,Body
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date
-from ..schema.pydantic_models  import TaskCreate, TaskRead, SubTaskCreate,TaskUpdate
+from datetime import datetime,timezone
+from ..schema.pydantic_models  import TaskCreate, TaskRead, SubTaskCreate,TaskUpdate,SubTaskRead,CompletionUpdate
 from ..models.data_models import Task, SubTask
-from ..data_manager.sqlite_data_manager import get_session
+from data_manager.data_manager import get_session
 from sqlalchemy.exc import IntegrityError
+from util.auth_util import get_current_user
+
+
 
 
 router = APIRouter(
@@ -15,14 +18,26 @@ router = APIRouter(
 
 
 @router.post("/", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
-def create_task(task_in: TaskCreate, db: Session = Depends(get_session)):
+def create_task(task_in: TaskCreate, db: Session = Depends(get_session),
+                current_user = Depends(get_current_user),):
+    reminder = task_in.reminder
+    if reminder:
+        # If the incoming datetime is naive (no tzinfo), assume UTC (or your desired timezone)
+        if reminder.tzinfo is None:
+            reminder = reminder.replace(tzinfo=timezone.utc)
+        else:
+            # Convert to UTC timezone if not already
+            reminder = reminder.astimezone(timezone.utc)
+
+
     task = Task(
         title=task_in.title,
         description=task_in.description,
         completed=task_in.completed,
-        reminder=task_in.reminder,
+        reminder=reminder,
         reminder_email=str(task_in.reminder_email) if task_in.reminder_email else None,
         reminder_enabled=task_in.reminder_enabled,
+        owner_id=current_user.id,
     )
     db.add(task)
     db.flush()  # To get task.id before adding subtasks
@@ -41,37 +56,52 @@ def create_task(task_in: TaskCreate, db: Session = Depends(get_session)):
 
 # Get all tasks
 @router.get("/", response_model=List[TaskRead])
-def read_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
-    tasks = db.query(Task).offset(skip).limit(limit).all()
+def read_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_session),
+               current_user = Depends(get_current_user),):
+    tasks = db.query(Task).filter(Task.owner_id == current_user.id).offset(skip).limit(limit).all()
     return tasks
 
 # Get task by ID
 @router.get("/{task_id}", response_model=TaskRead)
-def read_task(task_id: int, db: Session = Depends(get_session)):
-    task = db.query(Task).filter(Task.id == task_id).first()
+def read_task(task_id: int, db: Session = Depends(get_session),
+              current_user = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id,Task.owner_id == current_user.id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
 # Update task completion status
 @router.patch("/{task_id}/complete", response_model=TaskRead)
-def update_task_completion(task_id: int, completed: bool, db: Session = Depends(get_session)):
-    task = db.query(Task).filter(Task.id == task_id).first()
+def update_task_completion(task_id: int, update:CompletionUpdate = Body(...), db: Session = Depends(get_session),
+                           current_user = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id,Task.owner_id == current_user.id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    task.completed = completed
+    task.completed = update.completed
+    if update.completed:
+        # Set completed_date to current UTC time when marking complete
+        task.completed_date = datetime.now(timezone.utc)
+    else:
+        # Clear completed_date when marking incomplete
+        task.completed_date = None
     db.commit()
     db.refresh(task)
     return task
 
 
  # Update subtask completion status
-@router.patch("/subtasks/{subtask_id}/complete", response_model=SubTaskCreate)
-def update_subtask_completion(subtask_id: int, completed: bool, db: Session = Depends(get_session)):
-    subtask = db.query(SubTask).filter(SubTask.id == subtask_id).first()
+@router.patch("/subtasks/{subtask_id}/complete", response_model=SubTaskRead)
+def update_subtask_completion(subtask_id: int, update: CompletionUpdate = Body(...), db: Session = Depends(get_session),
+                              current_user = Depends(get_current_user)):
+    subtask = db.query(SubTask).filter(SubTask.id == subtask_id,
+                                       Task.owner_id == current_user.id).first()
     if not subtask:
         raise HTTPException(status_code=404, detail="Subtask not found")
-    subtask.completed = completed
+    subtask.completed = update.completed
+    if update.completed:
+        subtask.completed_date = datetime.now(timezone.utc)
+    else:
+        subtask.completed_date = None
     db.commit()
     db.refresh(subtask)
     return subtask
@@ -79,8 +109,10 @@ def update_subtask_completion(subtask_id: int, completed: bool, db: Session = De
 
 # Delete a task (and cascade delete subtasks)
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(get_session)):
-    task = db.query(Task).filter(Task.id == task_id).first()
+def delete_task(task_id: int, db: Session = Depends(get_session),
+                current_user = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id,
+                                 Task.owner_id == current_user.id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     db.delete(task)
@@ -88,10 +120,21 @@ def delete_task(task_id: int, db: Session = Depends(get_session)):
     return
 
 @router.put("/{task_id}", response_model=TaskRead)
-def update_task(task_id: int, task_in: TaskUpdate, db: Session = Depends(get_session)):
-    task = db.query(Task).filter(Task.id == task_id).first()
+def update_task(task_id: int, task_in: TaskUpdate, db: Session = Depends(get_session),
+                current_user = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id,
+                                 Task.owner_id == current_user.id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Handle reminder datetime with timezone awareness if present in update
+    if task_in.reminder is not None:
+        reminder = task_in.reminder
+        if reminder.tzinfo is None:
+            reminder = reminder.replace(tzinfo=timezone.utc)
+        else:
+            reminder = reminder.astimezone(timezone.utc)
+        setattr(task, "reminder", reminder)
 
     # Update main task fields
     for field, value in task_in.dict(exclude_unset=True).items():

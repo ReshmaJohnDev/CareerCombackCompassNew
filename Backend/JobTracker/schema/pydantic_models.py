@@ -20,6 +20,7 @@ class JobCreate(JobBase):
 #For returning  a job response
 class JobResponse(JobBase):
     id: int
+    user_id: int 
 
     class Config:
         from_attributes = True  # Allows Pydantic to work with SQLAlchemy ORM models

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { AppContext } from "../../context/AppContext";
 
 export default function EditTask({ task, onClose, onSave }) {
   const [editedTitle, setEditedTitle] = useState(task.title || "");
@@ -12,35 +13,41 @@ export default function EditTask({ task, onClose, onSave }) {
     task.reminder ? task.reminder.slice(0, 16) : ""
   );
   const [editedSubtasks, setEditedSubtasks] = useState(task.subtasks || []);
+  const { logActivity } = useContext(AppContext);
 
-  // Update subtask title on input change
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (task) {
+      setEditedTitle(task.title || "");
+      setEditedDescription(task.description || "");
+      setEditedReminderEnabled(task.reminder_enabled || false);
+      setEditedReminder(task.reminder ? task.reminder.slice(0, 16) : "");
+      setEditedSubtasks(task.subtasks || []);
+      inputRef.current?.focus();
+    }
+  }, [task]);
+
   const handleSubtaskChange = (index, newTitle) => {
     const updatedSubtasks = [...editedSubtasks];
     updatedSubtasks[index] = { ...updatedSubtasks[index], title: newTitle };
     setEditedSubtasks(updatedSubtasks);
   };
 
-  // Toggle subtask completed status
   const handleSubtaskCompletedToggle = (index, completed) => {
     const updatedSubtasks = [...editedSubtasks];
     updatedSubtasks[index] = { ...updatedSubtasks[index], completed };
     setEditedSubtasks(updatedSubtasks);
   };
 
-  // Delete a subtask
   const handleDeleteSubtask = (index) => {
     setEditedSubtasks(editedSubtasks.filter((_, i) => i !== index));
   };
 
-  // Add a new empty subtask
   const addNewSubtask = () => {
-    setEditedSubtasks([
-      ...editedSubtasks,
-      { id: null, title: "", completed: false },
-    ]);
+    setEditedSubtasks([...editedSubtasks, { title: "", completed: false }]);
   };
 
-  // Handle Save button click
   const handleSaveEdit = () => {
     if (!editedTitle.trim()) {
       alert("Task title cannot be empty");
@@ -52,7 +59,10 @@ export default function EditTask({ task, onClose, onSave }) {
       title: editedTitle.trim(),
       description: editedDescription.trim(),
       reminder_enabled: editedReminderEnabled,
-      reminder: editedReminder || null,
+      reminder:
+        editedReminderEnabled && editedReminder
+          ? new Date(editedReminder).toISOString()
+          : null,
       subtasks: editedSubtasks
         .filter((st) => st.title.trim() !== "")
         .map((st) => ({
@@ -65,17 +75,17 @@ export default function EditTask({ task, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-      <div className="bg-white p-6 rounded-xl max-w-md w-full shadow-lg text-gray-800 space-y-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 transition-opacity duration-300">
+      <div className="bg-white p-6 rounded-xl max-w-md w-full shadow-lg text-gray-800 space-y-4 min-h-[400px] transition-transform transform scale-100 duration-300">
         <h2 className="text-lg font-semibold">Edit Task</h2>
 
         <label className="flex flex-col">
           <span>Title</span>
           <input
+            ref={inputRef}
             className="border px-2 py-1 rounded"
             value={editedTitle}
             onChange={(e) => setEditedTitle(e.target.value)}
-            autoFocus
           />
         </label>
 

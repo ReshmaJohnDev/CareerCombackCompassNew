@@ -1,8 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
 import { AppContext } from "../context/AppContext";
 
 export default function Login() {
@@ -34,72 +32,59 @@ export default function Login() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* <Navbar /> */}
-
       <div
-        className={`p-4 flex flex-col items-center justify-center px-4  min-h-screen transition-colors duration-500 ${
+        className={`p-4 flex flex-col items-center justify-center min-h-screen transition-colors duration-500 ${
           darkMode
             ? "bg-black text-gray-100"
-            : "bg-light-gradient text-gray-900"
+            : "bg-gradient-to-r from-blue-400 to-gray-700 text-gray-100"
         }`}
       >
         <div
-          className={`w-full flex items-center max-w-xl bg-gray-800 p-8 rounded-xl shadow-md ${
+          className={`w-full max-w-xl p-8 rounded-xl shadow-md transition-colors duration-500 ${
             darkMode
-              ? "bg-black text-gray-100"
-              : "bg-light-gradient text-gray-900"
+              ? "bg-gray-800 text-gray-100"
+              : "bg-white/20 backdrop-blur-md text-gray-900"
           }`}
         >
-          <h3
-            className={`text-2xl font-extrabold tracking-tight ${
-              darkMode ? "text-gray-100" : "text-gray-900"
-            }`}
-          >
+          <h3 className="text-2xl font-extrabold mb-6">
             Login to Your Account
           </h3>
           <form onSubmit={handleLogin} className="space-y-5">
-            {/* Daisy UI */}
-            <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs  text-black border p-6">
-              <label className="floating-label">
-                <span>Your Email</span>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input input-md"
-                  placeholder="mail@site.com"
-                />
-              </label>
-
-              <label className="floating-label">
-                <span>Password</span>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input"
-                  placeholder="Password"
-                />
-              </label>
-
-              <button className="btn btn-neutral mt-4">Login</button>
-              {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-              )}
-              <p className="mt-4 text-sm text-center text-gray-600">
-                Don't have an account?{" "}
-                <a href="/register" className="text-blue-600 hover:underline">
-                  Register
-                </a>
-              </p>
-            </fieldset>
-            {/* Daisy UI */}
+            <label className="flex flex-col">
+              <span>Email</span>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input input-bordered w-full"
+                placeholder="mail@site.com"
+              />
+            </label>
+            <label className="flex flex-col">
+              <span>Password</span>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input input-bordered w-full"
+                placeholder="Password"
+              />
+            </label>
+            <button className="btn btn-neutral w-full mt-4">Login</button>
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+            <p className="mt-4 text-sm text-center">
+              Don't have an account?{" "}
+              <a href="/register" className="text-blue-600 hover:underline">
+                Register
+              </a>
+            </p>
           </form>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

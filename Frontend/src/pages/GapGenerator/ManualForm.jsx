@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import Navbar from "../Navbar";
+import React, { useState, useContext } from "react";
 import { FiDownload, FiEdit } from "react-icons/fi";
 import { generateGapHistoryFromForm } from "./util/generateGenerator";
 import LoadingMessage from "./util/LoadingMessage";
+import { AppContext } from "../../context/AppContext";
 
-export default function ManualForm() {
+export default function ManualForm({ onUploadClick }) {
+  const { darkMode } = useContext(AppContext);
   const [showForm, setShowForm] = useState(true);
   const [formData, setFormData] = useState({
     reason: "",
@@ -41,8 +42,8 @@ export default function ManualForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-10 flex flex-col items-center">
-      <div className="w-full max-w-3xl bg-gradient-to-r from-gray-600 to-gray-400 rounded-2xl shadow-lg p-6">
+    <main className="w-full text-white px-4 py-10 flex flex-col items-center">
+      <section className="w-full max-w-3xl bg-gradient-to-r from-gray-600 to-gray-400 rounded-2xl shadow-lg p-6">
         {showForm ? (
           <form
             onSubmit={handleGenerateGapHistory}
@@ -114,7 +115,7 @@ export default function ManualForm() {
               required
             />
 
-            <div className="flex justify-center">
+            <div className="flex justify-center space-x-4">
               <button
                 type="submit"
                 disabled={loading}
@@ -129,17 +130,30 @@ export default function ManualForm() {
                   "Generate Gap History"
                 )}
               </button>
+
+              <button
+                type="button"
+                onClick={onUploadClick}
+                className={`btn ${
+                  darkMode
+                    ? "bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-black"
+                    : "bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white"
+                }`}
+              >
+                Upload CV
+              </button>
             </div>
+
             {error && <p className="text-red-200 text-center mt-2">{error}</p>}
           </form>
         ) : (
-          <div className="animate-fade-in space-y-4">
+          <>
             <textarea
               className="w-full h-80 bg-black text-white px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-300 resize-none"
               value={gapStory}
               onChange={(e) => setGapStory(e.target.value)}
             />
-            <div className="flex justify-between">
+            <div className="flex justify-between mt-4">
               <button
                 onClick={() => setShowForm(true)}
                 className="btn flex items-center gap-2 bg-gray-800 text-white hover:bg-gray-700"
@@ -153,9 +167,9 @@ export default function ManualForm() {
                 <FiDownload /> Download
               </button>
             </div>
-          </div>
+          </>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

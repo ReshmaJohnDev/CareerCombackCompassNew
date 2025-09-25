@@ -1,10 +1,11 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException,Form
 from fastapi.responses import JSONResponse
 import fitz  # PyMuPDF
 from docx import Document
+import uuid
 import os
 import traceback
-from ..util.cohere_parser import invoke_cohere_parsing_api
+from ..util.cohere_parser import invoke_cohere_parsing_api, invoke_cohere_gap_summary
 
 router = APIRouter(
     prefix="/gap",
@@ -26,6 +27,16 @@ def extract_text_from_pdf(filepath):
 def extract_text_from_docx(filepath):
     doc = Document(filepath)
     return "\n".join([para.text for para in doc.paragraphs])
+
+
+
+@router.post("/generate_gap_story")
+async def generate_gap_story_endpoint(text: str = Form(...)):
+    if not text:
+        raise HTTPException(status_code=400, detail="Text input is required")
+
+    summary = await invoke_cohere_gap_summary(text)
+    return {"parsed_data": summary}
 
 
 @router.post("/upload_and_parse_resume")
@@ -52,7 +63,8 @@ async def upload_resume(file: UploadFile = File(...)):
         else:
             extracted_text = extract_text_from_docx(filepath)
 
-        parsed_result = await invoke_cohere_parsing_api(extracted_text)
+        summary = await invoke_cohere_parsing_api(extracted_text)
+        return {"parsed_data": summary}
 
     except Exception as e:
         traceback.print_exc()
@@ -64,5 +76,3 @@ async def upload_resume(file: UploadFile = File(...)):
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
-
-    return JSONResponse(content={"parsed_data": parsed_result})

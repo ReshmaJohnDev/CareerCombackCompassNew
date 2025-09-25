@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import api from "../../api";
-import NavBar from "../Navbar";
 import { KanbanColumn } from "./KanbanColumn";
 import Footer from "../Footer";
 import { AppContext } from "../../context/AppContext";
@@ -19,7 +18,9 @@ export default function JobTracker() {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
+  // Fetch jobs
   useEffect(() => {
     setError(null);
     setLoading(true);
@@ -27,13 +28,12 @@ export default function JobTracker() {
       try {
         const res = await api.get("/jobs/jobs");
         setJobs(res.data);
-      } catch (error) {
-        console.error("Failed to fetch jobs:", error);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Failed to load jobs");
         setJobs([]);
-        setError(error.message || "Failed to load jobs");
-        // fallback to empty on error
       } finally {
-        setLoading(false); // hide loading message
+        setLoading(false);
       }
     };
     fetchJobs();
@@ -51,12 +51,12 @@ export default function JobTracker() {
     try {
       const response = await api.put(`/jobs/jobs/${job_id}`, updatedData);
       const updatedJob = response.data;
-      setJobs((prevJobs) =>
-        prevJobs.map((job) => (job.id === job_id ? updatedJob : job))
+      setJobs((prev) =>
+        prev.map((job) => (job.id === job_id ? updatedJob : job))
       );
-    } catch (error) {
-      console.error("Error updating job:", error);
-      setError(error.message || "Network error!.Please try after sometime");
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Network error! Please try again.");
     } finally {
       setLoading(false);
     }
@@ -64,42 +64,54 @@ export default function JobTracker() {
 
   const handleAddNewJob = async (newJob) => {
     try {
-      const response = await api.post("/jobs/jobs/", newJob);
-      const createdJob = response.data;
-      setJobs((prevJobs) => [...prevJobs, createdJob]);
-    } catch (error) {
-      console.error("Error adding job:", error);
+      const res = await api.post("/jobs/jobs/", newJob);
+      setJobs((prev) => [...prev, res.data]);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleDeleteJob = async (job_id) => {
     try {
       await api.delete(`/jobs/jobs/${job_id}`);
-      setJobs((prevJobs) => prevJobs.filter((job) => job.id !== job_id));
-    } catch (error) {
-      console.error("Error deleting job:", error);
+      setJobs((prev) => prev.filter((job) => job.id !== job_id));
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    <div>
-      <div
-        className={`p-4 flex flex-col items-center min-h-screen transition-colors duration-500 ${
-          darkMode
-            ? "bg-black text-gray-100"
-            : "bg-light-gradient text-gray-900"
-        }`}
-      >
-        {/* <NavBar /> */}
-        <main className="flex-1 p-6 max-w-full overflow-x-auto">
-          <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-            <h1
+    <div
+      className={`relative min-h-screen w-full ${
+        darkMode
+          ? "bg-gray-900 text-gray-100"
+          : "bg-gradient-to-r from-blue-300 to-gray-200 text-black"
+      } flex justify-center items-start p-6`}
+    >
+      {/* Content Card */}
+      <div className="relative z-10 w-full max-w-7xl flex flex-col gap-6 min-h-[80vh]">
+        {/* Header */}
+        <div className="bg-white/10 dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-md transition-colors">
+          <h1 className="text-2xl font-bold mb-2">Job Application Tracker</h1>
+          <p className="mb-4">
+            Keep track of all your applications and their current status
+          </p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="mb-6 px-5 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            + Add Application
+          </button>
+
+          {/* Filter Input */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h2
               className={`text-4xl font-extrabold tracking-tight ${
                 darkMode ? "text-gray-100" : "text-gray-900"
               }`}
             >
               Job Hunt Tracker
-            </h1>
+            </h2>
             <input
               type="text"
               placeholder="Search jobs"
@@ -108,38 +120,40 @@ export default function JobTracker() {
               className={`w-full sm:w-64 px-4 py-3 rounded-xl shadow-md transition focus:outline-none focus:ring-2 ${
                 darkMode
                   ? "bg-gray-800 text-white placeholder-gray-400 focus:ring-blue-400"
-                  : "bg-white text-black placeholder-gray-500 focus:ring-blue-600"
+                  : "bg-white/30 text-black placeholder-gray-600 focus:ring-blue-600"
               }`}
             />
-          </header>
+          </div>
 
+          {/* Loading & Error */}
           {loading && (
             <p
-              className={`text-center mb-4 ${
+              className={`text-center mt-4 ${
                 darkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
               Loading jobs...
             </p>
           )}
-          {error && <p className="text-center text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-center text-red-500 mt-4">{error}</p>}
+        </div>
 
-          <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900">
-            {columnsOrder.map((column) => (
-              <KanbanColumn
-                key={column}
-                id={column}
-                title={column}
-                jobs={filteredJobs.filter((job) => job.status === column)}
-                onAddJob={handleAddNewJob}
-                onUpdateJob={handleUpdateJob}
-                onDeleteJob={handleDeleteJob}
-                loading={loading}
-                darkMode={darkMode}
-              />
-            ))}
-          </div>
-        </main>
+        {/* Kanban Columns */}
+        <div className="flex gap-6 overflow-x-auto pb-6">
+          {columnsOrder.map((column) => (
+            <KanbanColumn
+              key={column}
+              id={column}
+              title={column}
+              jobs={filteredJobs.filter((job) => job.status === column)}
+              onAddJob={handleAddNewJob}
+              onUpdateJob={handleUpdateJob}
+              onDeleteJob={handleDeleteJob}
+              loading={loading}
+              darkMode={darkMode}
+            />
+          ))}
+        </div>
       </div>
       <Footer />
     </div>

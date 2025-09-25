@@ -20,20 +20,23 @@ export const fetchTaskById = async (taskId) => {
 
 //Update task completion status
 export const updateTaskStatus = async (taskId, completed) => {
-  const response = await api.patch(`/tasks/${taskId}/complete`, null, {
-    params: { completed },
-  });
+  const payload = {
+    completed,
+    completed_date: completed ? new Date().toISOString() : null,
+  };
+  const response = await api.patch(`/tasks/${taskId}/complete`, payload);
   return response.data;
 };
 
 //Update subtask completion status
 export const updateSubTaskStatus = async (subtaskId, completed) => {
+  const payload = {
+    completed,
+    completed_date: completed ? new Date().toISOString() : null,
+  };
   const response = await api.patch(
     `/tasks/subtasks/${subtaskId}/complete`,
-    null,
-    {
-      params: { completed },
-    }
+    payload
   );
   return response.data;
 };

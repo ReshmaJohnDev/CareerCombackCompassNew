@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, Boolean, DateTime, ForeignKey
+    Column, Integer, String, Boolean, DateTime, ForeignKey,TIMESTAMP
 )
 from shared.base import Base
 from sqlalchemy.orm import relationship
@@ -11,12 +11,17 @@ class Task(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
     completed = Column(Boolean, default=False, nullable=False)
+    completed_date = Column(TIMESTAMP(timezone=True), nullable=True)
+
     
     # Reminder on main task only
-    reminder = Column(DateTime, nullable=True)
+    reminder = Column(TIMESTAMP(timezone=True), nullable=True)
     reminder_email = Column(String, nullable=True)
     reminder_enabled = Column(Boolean, default=False, nullable=False)
     reminder_sent = Column(Boolean, default=False, nullable=False)
+
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("User", back_populates="tasks")
 
     # One-to-many relation with SubTask
     subtasks = relationship("SubTask", back_populates="task", cascade="all, delete-orphan")
@@ -28,6 +33,7 @@ class SubTask(Base):
     task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False)
     title = Column(String, nullable=False)
     completed = Column(Boolean, default=False, nullable=False)
+    completed_date = Column(TIMESTAMP(timezone=True), nullable=True)
     
     # Relationship back to parent task
     task = relationship("Task", back_populates="subtasks")

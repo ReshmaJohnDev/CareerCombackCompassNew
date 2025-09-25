@@ -27,6 +27,7 @@ class TaskBase(BaseModel):
     reminder: Optional[datetime] = None
     reminder_email: Optional[EmailStr] = None
     reminder_enabled: bool = False
+    completed_date: Optional[datetime] = None
 
 # Properties to receive on creation
 class TaskCreate(TaskBase):
@@ -53,4 +54,9 @@ class TaskUpdate(BaseModel):
     reminder: Optional[datetime] = None
     reminder_email: Optional[EmailStr] = None
     reminder_enabled: Optional[bool] = False
+    completed_date: Optional[datetime] = None
     subtasks: Optional[List[SubTaskUpdate]] = []
+
+class CompletionUpdate(BaseModel):
+    completed: bool
+    completed_date: Optional[datetime] = None

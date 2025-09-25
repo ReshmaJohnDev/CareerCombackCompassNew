@@ -16,7 +16,11 @@ class Jobs(Base):
     notes = Column(String, nullable=True)
     follow_up_date = Column(Date, nullable=True)
 
+    # Foreign key relationship
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user = relationship("User", back_populates="jobs")
+
 
     # Add a unique constraint on the combination of title and company
-    __table_args__ = (UniqueConstraint('title', 'company', name='_title_company_uc'),)
+    __table_args__ = (UniqueConstraint('title', 'company', 'user_id', name='_title_company_uc'),)
 

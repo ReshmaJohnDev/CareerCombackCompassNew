@@ -1,5 +1,4 @@
-// src/utils/gapGenerator.js
-
+import api from "../../../api";
 export async function generateGapHistoryFromForm(
   formData,
   setGapStory,
@@ -10,52 +9,54 @@ export async function generateGapHistoryFromForm(
   setLoading(true);
   setError(null);
   setGapStory("");
+  const prompt = `Write a professional and confident career gap summary based on the following info.
 
-  const prompt = `Write a professional and confident career gap summary based on the following info:
-- Reason: ${formData.reason}
-- Duration: ${formData.duration}
-- Activities during the gap: ${formData.activities}
-- Skills learned: ${formData.skills}
-- Career goals: ${formData.career_goals}
-- Past experience: ${formData.past_experience}
-- Additional information:${formData.additional_info}`;
+IMPORTANT:
+- Output plain text only (no markdown, no bold, no headings).
+- Do not include line breaks; return as a single paragraph.
+- Write in one to two short paragraphs.
+- Keep the tone professional, confident, and forward-looking.
+- Do not include the phrase "Career Gap Summary" or any labels.
 
-  if (prompt.length < 250) {
-    setError(
-      "Please provide more detailed information (at least 250 characters)."
-    );
+Info:
+- Duration of break: ${formData.duration || "N/A"}
+- Reason for the break: ${formData.reason || "N/A"}
+- Skills developed or strengthened during the break: ${
+    formData.skills?.join(", ") || "N/A"
+  }
+- Personal and professional growth during the break: ${formData.growth || "N/A"}
+- How I stayed current in the industry: ${formData.current || "N/A"}
+- Motivation to return to work: ${formData.motivation || "N/A"}
+`;
+  const cleanedPrompt = prompt.trim();
+
+  if (!cleanedPrompt.trim() || cleanedPrompt.length < 50) {
+    // ensure prompt has content
+    setError("Please provide more detailed information.");
     setLoading(false);
     return;
   }
 
   try {
-    const res = await fetch("https://api.cohere.ai/v1/summarize", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_COHERE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text: prompt,
-        length: "medium",
-        format: "paragraph",
-        model: "summarize-xlarge",
-        extractiveness: "auto",
-      }),
+    // Call  backend endpoint
+    const formDataObj = new FormData();
+    formDataObj.append("text", cleanedPrompt);
+    const response = await api.post("/gap/generate_gap_story", formDataObj, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
+    console.log("invoked backend");
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error("API Error:", errorData);
-      setError(errorData.message || "Unknown API error");
-    } else {
-      const data = await res.json();
-      setGapStory(data.summary || "No summary returned.");
-      if (setShowForm) setShowForm(false);
-    }
+    const summary = response.data?.parsed_data || "No summary returned.";
+    setGapStory(summary);
+
+    if (setShowForm) setShowForm(false);
   } catch (error) {
-    console.error("Fetch error:", error);
-    setError(error.message || "Network error");
+    console.error("Backend error:", error);
+    setError(
+      error.response?.data?.detail ||
+        error.message ||
+        "Failed to generate gap summary"
+    );
   } finally {
     setLoading(false);
   }

@@ -1,41 +1,87 @@
-import React, { useState } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  forwardRef,
+  useContext,
+} from "react";
+import { updateTaskStatus, updateSubTaskStatus, deleteTask } from "./util/Task";
 import { Trash2 } from "lucide-react";
-import {
-  updateSubTaskStatus,
-  updateTaskStatus,
-  fetchTaskById,
-  deleteTask,
-  updateTask,
-} from "./util/Task";
-import EditTask from "./EditTask";
 
-const TaskCard = ({ task, onUpdate, darkMode }) => {
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+const TaskCard = forwardRef(({ task, onEdit, onUpdate }, cardRef) => {
+  const {
+    title,
+    description,
+    completed,
+    reminder,
+    reminder_email,
+    reminder_enabled,
+    completed_date,
+    subtasks = [],
+  } = task;
 
-  const completedSubtasksCount = task.subtasks.filter(
-    (st) => st.completed
-  ).length;
+  const checkboxRefs = useRef({});
+  const lastToggledSubtaskId = useRef(null);
 
-  const handleSubtaskToggle = async (subtaskId, currentStatus) => {
+  const totalSubtasks = subtasks.length;
+  const [localSubtasks, setLocalSubtasks] = useState(subtasks);
+  const [updatingSubtaskId, setUpdatingSubtaskId] = useState(null);
+
+  // Calculate progress based on localSubtasks state
+  const completedSubtasks = localSubtasks.filter((s) => s.completed).length;
+  const progress =
+    totalSubtasks > 0
+      ? Math.round((completedSubtasks / totalSubtasks) * 100)
+      : completed
+      ? 100
+      : 0;
+
+  // Focus the checkbox of the last toggled subtask after localSubtasks changes
+  useEffect(() => {
+    if (
+      lastToggledSubtaskId.current &&
+      checkboxRefs.current[lastToggledSubtaskId.current]
+    ) {
+      checkboxRefs.current[lastToggledSubtaskId.current].focus({
+        preventScroll: true,
+      });
+      lastToggledSubtaskId.current = null;
+    }
+  }, [localSubtasks]);
+
+  // Sync localSubtasks if subtasks prop changes
+  useEffect(() => {
+    setLocalSubtasks(subtasks);
+  }, [subtasks]);
+
+  const handleToggleComplete = async (e) => {
+    e.stopPropagation(); // Prevent triggering onEdit
     try {
-      await updateSubTaskStatus(subtaskId, !currentStatus);
-      const updatedTask = await fetchTaskById(task.id);
-      const allCompleted = updatedTask.subtasks.every((st) => st.completed);
-      await updateTaskStatus(task.id, allCompleted);
-      onUpdate?.();
+      await updateTaskStatus(task.id, !completed);
+      onUpdate();
     } catch (err) {
-      console.error("Error toggling subtask:", err);
+      console.error("Failed to update status", err);
     }
   };
 
-  const handleTaskToggle = async () => {
+  const handleToggleSubtaskComplete = async (subtask, e) => {
+    e.stopPropagation();
+
+    lastToggledSubtaskId.current = subtask.id;
+    setUpdatingSubtaskId(subtask.id);
+
     try {
-      const newStatus = !task.completed;
-      await updateTaskStatus(task.id, newStatus);
-      onUpdate?.();
+      await updateSubTaskStatus(subtask.id, !subtask.completed);
+
+      setLocalSubtasks((prev) =>
+        prev.map((s) =>
+          s.id === subtask.id ? { ...s, completed: !s.completed } : s
+        )
+      );
     } catch (err) {
-      console.error("Error toggling task status:", err);
+      console.error("Failed to update subtask status", err);
+    } finally {
+      setUpdatingSubtaskId(null);
     }
   };
 
@@ -48,177 +94,160 @@ const TaskCard = ({ task, onUpdate, darkMode }) => {
     }
   };
 
-  const handleSaveTask = async (updatedTask) => {
-    try {
-      await updateTask(updatedTask);
-      onUpdate?.();
-      setShowEditModal(false);
-    } catch (error) {
-      console.error("Failed to update task:", error);
-    }
-  };
-
   return (
-    <div
-      className={`bg-gradient-to-r from-gray-700 via-gray-900 to-black rounded-xl shadow-lg cursor-pointer transition duration-300 hover:scale-[1.03] p-5 flex flex-col border border-gray-700 ${
-        darkMode ? "bg-black text-gray-100" : "bg-light-gradient text-gray-900"
-      }`}
-    >
-      <button
-        className="relative top-3 right-3 text-white-500 hover:text-red-500"
-        onClick={() => setShowDeleteAlert(true)}
-        title="Delete Task"
+    <>
+      <div
+        ref={cardRef}
+        tabIndex={-1}
+        className="relative w-full p-5 mb-4 rounded-xl border border-gray-300 shadow-md bg-white cursor-pointer"
       >
-        <Trash2 className="w-5 h-5" />
-      </button>
-      <button
-        className="relative top-3 right-10 text-white hover:text-blue-400"
-        onClick={() => setShowEditModal(true)}
-        title="Edit Task"
-      >
-        ✏️
-      </button>
+        {/* Left vertical colored strip */}
+        <div
+          className="absolute top-0 left-0 h-full w-1.5 rounded-l-xl"
+          style={{ backgroundColor: completed ? "#16a34a" : "#facc15" }}
+        />
 
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex-1">
+        {/* Header: Title & Status */}
+        <div className="flex justify-between items-start flex-wrap gap-2 mb-2">
           <h2
-            className={`text-lg font-semibold ${
-              darkMode ? "text-white" : "text-gray-900"
+            className={`text-xl font-semibold ${
+              completed ? "text-green-700" : "text-gray-800"
             }`}
           >
-            {task.title}
+            {title}
           </h2>
-          {task.subtasks.length === 0 ? (
+
+          <div className="flex items-center gap-3">
             <button
-              onClick={handleTaskToggle}
-              className={`mt-1 text-xs px-2 py-1 rounded-full font-medium ${
-                task.completed
-                  ? "bg-green-600 text-white"
-                  : "bg-yellow-400 text-gray-800 animate-pulse"
+              onClick={handleToggleComplete}
+              className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                completed
+                  ? "bg-green-100 text-green-700"
+                  : "bg-yellow-100 text-yellow-700"
               }`}
             >
-              {task.completed ? "Completed" : "Mark as Done"}
+              {completed ? "Completed" : "Mark Completed"}
             </button>
-          ) : (
-            <>
-              <div className="w-full h-2 bg-gray-300 rounded-full overflow-hidden mt-2">
-                <div
-                  className={`h-full transition-all duration-300 ${
-                    task.completed
-                      ? "bg-green-500"
-                      : "bg-yellow-400 animate-pulse"
-                  }`}
-                  style={{
-                    width: `${
-                      (completedSubtasksCount / task.subtasks.length) * 100
-                    }%`,
-                  }}
-                />
-              </div>
-              <p
-                className={`text-xs text-right mt-1 ${
-                  darkMode ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
-                {task.completed ? "Completed" : "In Progress"}
-              </p>
-            </>
-          )}
-        </div>
-      </div>
-
-      {task.description && (
-        <p
-          className={`text-sm font-medium ${
-            darkMode ? "text-white" : "text-gray-800"
-          }`}
-        >
-          {task.description}
-        </p>
-      )}
-
-      <div className="mt-4">
-        <p
-          className={`text-sm font-medium mb-1 ${
-            darkMode ? "text-white" : "text-gray-800"
-          }`}
-        >
-          Subtasks ({completedSubtasksCount}/{task.subtasks.length})
-        </p>
-        <ul
-          className={`space-y-2 text-sm ${
-            darkMode ? "text-gray-200" : "text-gray-800"
-          }`}
-        >
-          {task.subtasks.map((subtask) => (
-            <li key={subtask.id} className="flex items-center">
-              <input
-                type="checkbox"
-                checked={subtask.completed}
-                onChange={() =>
-                  handleSubtaskToggle(subtask.id, subtask.completed)
-                }
-                className="mr-2 accent-gray-500"
-              />
-              <span
-                className={
-                  subtask.completed
-                    ? `${
-                        darkMode ? "text-green-300" : "text-green-800"
-                      } line-through`
-                    : `${darkMode ? "text-gray-200" : "text-gray-800"}`
-                }
-              >
-                {subtask.title}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {showDeleteAlert && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <div
-            className={`bg-${
-              darkMode ? "gray-800" : "white"
-            } p-6 rounded-xl max-w-sm w-full shadow-lg ${
-              darkMode ? "text-gray-100" : "text-gray-800"
-            }`}
-          >
-            <p className="mb-4">Are you sure you want to delete this task?</p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => {
-                  handleDeleteSubtask(task.id);
-                  setShowDeleteAlert(false);
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setShowDeleteAlert(false)}
-                className={`px-4 py-2 rounded-lg font-semibold ${
-                  darkMode
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-red-600 hover:bg-red-700 text-white"
-                }`}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         </div>
-      )}
-      {showEditModal && (
-        <EditTask
-          task={task}
-          onClose={() => setShowEditModal(false)}
-          onSave={handleSaveTask}
-        />
-      )}
-    </div>
-  );
-};
 
+        {/* Description */}
+        {description && (
+          <p className="text-sm text-gray-700 mb-2">{description}</p>
+        )}
+
+        {/* Dates & Reminder */}
+        <div className="text-xs text-gray-600 space-y-1 mb-3">
+          {reminder && (
+            <p>
+              <strong>Due:</strong> {new Date(reminder).toLocaleDateString()}
+            </p>
+          )}
+          {reminder_email && reminder_enabled && (
+            <p>
+              <strong>Reminder to:</strong>{" "}
+              <span className="text-blue-600">{reminder_email}</span>
+            </p>
+          )}
+        </div>
+
+        {/* Subtasks List */}
+        {totalSubtasks > 0 && (
+          <div className="mb-3">
+            <p className="font-semibold mb-1">Subtasks:</p>
+            <ul>
+              {localSubtasks.map((sub) => (
+                <li
+                  key={sub.id}
+                  className="flex justify-between items-center mb-1"
+                  onClick={(e) => e.stopPropagation()} // prevent task edit on subtask click
+                >
+                  <label className="flex items-center gap-2 cursor-default">
+                    <input
+                      type="checkbox"
+                      checked={sub.completed}
+                      onChange={(e) => handleToggleSubtaskComplete(sub, e)}
+                      onClick={(e) => e.stopPropagation()} // prevent task edit on checkbox click
+                      className="cursor-pointer"
+                      ref={(el) => (checkboxRefs.current[sub.id] = el)}
+                      disabled={updatingSubtaskId === sub.id}
+                    />
+                    <span
+                      className={`select-none ${
+                        sub.completed ? " text-green-600" : ""
+                      }`}
+                    >
+                      {sub.title}
+                    </span>
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    {sub.completed_date && (
+                      <span className="text-xs text-green-700">
+                        {new Date(sub.completed_date).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* Overall Progress Bar */}
+            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden mt-2">
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${progress}%`,
+                  background: "linear-gradient(to right, #3b82f6, #6b21a8)", // blue to purple gradient
+                }}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">{progress}% Complete</p>
+          </div>
+        )}
+
+        <div className="flex gap-4 text-sm mt-2">
+          <button
+            onClick={() => onEdit(task)}
+            className="text-blue-600 hover:text-blue-800 font-semibold"
+            title="Edit Task"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDeleteSubtask(task.id)}
+            className="text-red-600 hover:text-red-800 font-semibold"
+            title="Delete Task"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Completed date badge */}
+        {completed && completed_date && (
+          <div
+            className="absolute bottom-2 right-3 text-xs text-gray-700 font-semibold px-2 py-0.5 rounded-full"
+            style={{ zIndex: 10 }}
+          >
+            Completed on: {new Date(completed_date).toLocaleString()}
+          </div>
+        )}
+
+        {/* Reminder date badge - only if not completed */}
+        {reminder && !completed && (
+          <div
+            className="absolute bottom-2 right-3 text-xs text-blue-700 font-semibold px-2 py-0.5 rounded-full"
+            style={{ zIndex: 10 }}
+          >
+            Reminder set for{" "}
+            {new Date(reminder).toLocaleDateString(undefined, {
+              month: "long",
+              day: "numeric",
+            })}
+          </div>
+        )}
+      </div>
+    </>
+  );
+});
 export default TaskCard;

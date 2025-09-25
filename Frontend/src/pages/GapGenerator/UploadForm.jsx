@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import Navbar from "../Navbar";
 import api from "../../api";
 import { generateGapHistoryFromForm } from "./util/generateGenerator";
 import { FiDownload, FiEdit } from "react-icons/fi";
 import LoadingMessage from "./util/LoadingMessage";
 
-export default function UploadForm() {
+export default function UploadForm({ onCancel }) {
   const [file, setFile] = useState(null);
   const [showFileToUploadAlert, setFileToUploadAlert] = useState(false);
   const [formData, setFormData] = useState(null);
@@ -24,8 +23,7 @@ export default function UploadForm() {
   }, [error]);
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
+    setFile(event.target.files[0]);
     setFormData(null);
     setGapStory("");
     setError("");
@@ -34,16 +32,15 @@ export default function UploadForm() {
   const uploadFileToBackend = async () => {
     if (!file) return;
     setLoading(true);
+    console.log("reached this");
     const form = new FormData();
     form.append("file", file);
     try {
       const response = await api.post("/gap/upload_and_parse_resume", form);
-      const data = response.data;
-      setFormData(data.parsed_data);
+      setFormData(response.data.parsed_data);
       setShowUpload(false);
       setShowForm(true);
     } catch (error) {
-      console.error("Upload failed:", error);
       const backendMessage =
         error.response?.data?.detail || "Error uploading or parsing file";
       setError(backendMessage);
@@ -54,10 +51,7 @@ export default function UploadForm() {
   };
 
   const handleFieldChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleGenerateGapHistory = async (e) => {
@@ -84,9 +78,18 @@ export default function UploadForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-10 flex flex-col items-center">
-      <div className="w-full max-w-5xl bg-gradient-to-r from-gray-600 to-gray-400 rounded-2xl shadow-lg p-6">
-        {/* Upload Section */}
+    <main className="w-full text-white px-4 py-10 flex flex-col items-center">
+      <section className="w-full max-w-5xl bg-gradient-to-r from-gray-600 to-gray-400 rounded-2xl shadow-lg p-6">
+        {/* Cancel button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={onCancel}
+            className="btn bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+        </div>
+
         {showUpload && (
           <div className="flex items-center gap-4 mt-4">
             <label
@@ -103,49 +106,49 @@ export default function UploadForm() {
               className="hidden"
             />
             <button
-              className={`btn rounded-lg font-semibold text-white px-6 py-2
-      ${
-        file
-          ? "bg-gradient-to-r from-gray-600 to-black hover:from-black hover:to-gray cursor-pointer"
-          : "bg-gray-700 cursor-not-allowed opacity-50"
-      }`}
               disabled={!file}
               onClick={() => setFileToUploadAlert(true)}
+              className={`btn rounded-lg font-semibold text-white px-6 py-2 ${
+                file
+                  ? "bg-gradient-to-r from-gray-600 to-black hover:from-black hover:to-gray cursor-pointer"
+                  : "bg-gray-700 cursor-not-allowed opacity-50"
+              }`}
             >
               Upload
             </button>
           </div>
         )}
+
         {file && (
-          <div className="mt-2 text-sm text-gray-200">
+          <p className="mt-2 text-sm text-gray-200">
             Selected File: <strong>{file.name}</strong>
-          </div>
+          </p>
         )}
-        {/* Confirmation Dialog */}
+
         {showFileToUploadAlert && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-            <div className="bg-gray-900 p-6 rounded-xl max-w-sm w-full shadow-lg text-white">
+            <section className="bg-gray-900 p-6 rounded-xl max-w-sm w-full shadow-lg text-white">
               <p className="mb-4">{`Upload the file: ${file.name} ?`}</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={uploadFileToBackend}
-                  className="bg-gray-900  hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
+                  disabled={loading}
+                  className="bg-gray-900 hover:bg-gray-700 px-4 py-2 rounded-lg font-semibold"
                 >
                   {loading ? <LoadingMessage /> : "OK"}
                 </button>
                 <button
                   onClick={() => setFileToUploadAlert(false)}
-                  className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-semibold"
                   disabled={loading}
+                  className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-semibold"
                 >
                   Cancel
                 </button>
               </div>
-            </div>
+            </section>
           </div>
         )}
 
-        {/* Form Section */}
         {showForm && formData && (
           <form
             onSubmit={handleGenerateGapHistory}
@@ -154,22 +157,19 @@ export default function UploadForm() {
             <h3 className="text-xl font-semibold mb-4 text-white">
               Edit Resume Details
             </h3>
-            {Object.entries(formData).map(([key, value]) => {
-              return (
-                <div key={key}>
-                  <label className="block font-medium capitalize mb-1 text-sm text-gray-300">
-                    {key.replace(/_/g, " ")}:
-                  </label>
-                  <textarea
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 text-gray placeholder-black-500"
-                    rows={value?.length > 80 ? 4 : 2}
-                    value={value}
-                    onChange={(e) => handleFieldChange(key, e.target.value)}
-                  />
-                </div>
-              );
-            })}
-
+            {Object.entries(formData).map(([key, value]) => (
+              <div key={key}>
+                <label className="block font-medium capitalize mb-1 text-sm text-gray-300">
+                  {key.replace(/_/g, " ")}:
+                </label>
+                <textarea
+                  rows={value?.length > 80 ? 4 : 2}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 text-gray placeholder-black-500"
+                  value={value}
+                  onChange={(e) => handleFieldChange(key, e.target.value)}
+                />
+              </div>
+            ))}
             <div className="flex justify-center">
               <button
                 type="submit"
@@ -177,59 +177,52 @@ export default function UploadForm() {
                 className="btn bg-gradient-to-r from-gray-600 to-black hover:from-black hover:to-gray text-white"
               >
                 {loading ? (
-                  <>
-                    <span className="loading loading-spinner text-white mr-2"></span>
-                    <LoadingMessage />
-                  </>
+                  <span className="loading loading-spinner text-white mr-2"></span>
                 ) : (
                   "Generate Gap History"
                 )}
               </button>
+              {loading && <LoadingMessage />}
             </div>
           </form>
         )}
 
-        {/* Result Section */}
         {showResult && gapStory && (
-          <div className="mt-6 p-4 bg-black rounded-lg text-white animate-fade-in space-y-4">
-            <h3 className="text-xl font-semibold mb-2">
-              Generated Gap History
-            </h3>
+          <section className="mt-6 p-4 bg-black rounded-lg text-white animate-fade-in">
             <textarea
-              className="w-full h-80 bg-black text-white px-4 py-2 border border-gray-300 rounded-lg placeholder-black-500 resize-none"
+              className="w-full h-80 bg-black text-white px-4 py-2 border border-gray-300 rounded-lg resize-none"
               value={gapStory}
-              onChange={(e) => setGapStory(e.target.value)}
+              readOnly
             />
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => {
+                  setShowForm(true);
+                  setShowResult(false);
+                }}
+                className="btn flex items-center gap-2 bg-gray-800 hover:bg-gray-700"
+              >
+                <FiEdit /> Edit Inputs
+              </button>
               <button
                 onClick={handleDownload}
                 className="btn flex items-center gap-2 text-white bg-gray-800 hover:bg-gray-700"
               >
                 <FiDownload /> Download
               </button>
-              <button
-                onClick={() => {
-                  setShowForm(true);
-                  setShowResult(false);
-                }}
-                className="btn bg-gray-600 hover:bg-gray-500 text-white flex items-center gap-2"
-              >
-                <FiEdit /> Edit
-              </button>
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Error Section */}
         {error && (
           <p
             ref={errorRef}
-            className="text-red-400 mt-4 text-center animate-fade-in"
+            className="text-red-400 mt-4 text-center font-semibold"
           >
             {error}
           </p>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
