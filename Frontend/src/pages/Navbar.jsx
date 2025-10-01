@@ -4,6 +4,8 @@ import { Sun, Moon } from "lucide-react";
 import { AppContext } from "../context/AppContext";
 
 export default function Navbar() {
+  console.log("Navbar rendered");
+
   const { username, setUsername, darkMode, setDarkMode } =
     useContext(AppContext);
   const [showMenu, setShowMenu] = useState(false);
@@ -61,7 +63,7 @@ export default function Navbar() {
                 featuresSection.scrollIntoView({ behavior: "smooth" });
               } else {
                 // Navigate to landing page with anchor
-                window.location.href = "/#features";
+                navigate("/#features");
               }
             }}
             className={`font-semibold hover:text-gray-300 transition-colors duration-300 ${
@@ -80,6 +82,7 @@ export default function Navbar() {
           </Link>
           {/* Dark Mode Toggle */}
           <button
+            type="button"
             onClick={() => setDarkMode(!darkMode)}
             className="p-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
             aria-label="Toggle Dark Mode"
@@ -101,6 +104,7 @@ export default function Navbar() {
             ) : (
               <>
                 <button
+                  type="button"
                   onClick={() => setShowMenu(!showMenu)}
                   className={`font-semibold flex items-center space-x-1 focus:outline-none ${
                     darkMode ? "text-gray-200" : "text-gray-800"
@@ -121,6 +125,7 @@ export default function Navbar() {
                     }`}
                   >
                     <button
+                      type="button"
                       onClick={handleLogout}
                       className={`block w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors duration-200 rounded-b-lg ${
                         darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"

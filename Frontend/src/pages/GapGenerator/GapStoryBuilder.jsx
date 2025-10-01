@@ -6,7 +6,7 @@ import { AppContext } from "../../context/AppContext";
 export default function GapStoryBuilder() {
   const location = useLocation();
   const [resumeSummary, setResumeSummary] = useState("");
-  const { gapStoryFormData, setGapStoryFormData, setOverviewData } =
+  const { gapStoryFormData, setGapStoryFormData, setOverviewData, darkMode } =
     useContext(AppContext);
 
   const stepMatch = location.pathname.match(/step-(\d)/);
@@ -41,21 +41,32 @@ export default function GapStoryBuilder() {
   }, [gapStoryFormData, setOverviewData]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto bg-gradient-to-r from-blue-300 to-gray-200 shadow rounded p-6 flex flex-col min-h-[80vh]">
+    <div
+      className={`w-full max-w-7xl mx-auto shadow rounded p-6 flex flex-col min-h-[80vh] transition-colors duration-500 ${
+        darkMode
+          ? "bg-gray-800 text-gray-100" // Dark Mode: Dark background, light text
+          : "bg-gradient-to-r from-blue-300 to-gray-200 text-gray-900" // Light Mode
+      }`}
+    >
       <Link
         to="/dashboard/overview"
-        className="text-blue-600 hover:underline mb-4 inline-block"
+        className={`hover:underline mb-4 inline-block ${
+          darkMode ? "text-blue-400" : "text-blue-600"
+        }`}
       >
         ← Back to Dashboard
       </Link>
 
       <h2 className="text-2xl font-bold">Gap Story Builder</h2>
-      <p className="text-gray-700">
+      <p className={`${darkMode ? "text-gray-400" : "text-gray-700"}`}>
         Transform your career break into a compelling professional narrative
       </p>
 
       <div>
-        <div className="flex justify-between text-sm text-gray-500 mb-1">
+        <div
+          className="flex justify-between text-sm mb-1"
+          style={{ color: darkMode ? "#9ca3af" : "#6b7280" }} // Gray-400/500 equivalent
+        >
           <span>Step {step} of 6</span>
           <span>{Math.round((step / 6) * 100)}% Complete</span>
         </div>
@@ -83,7 +94,13 @@ export default function GapStoryBuilder() {
       <UploadFile />
 
       {resumeSummary && (
-        <div className="mt-6 p-4 bg-gray-100 rounded border border-gray-300">
+        <div
+          className={`mt-6 p-4 rounded border ${
+            darkMode
+              ? "bg-gray-700 border-gray-600 text-gray-200"
+              : "bg-gray-100 border-gray-300"
+          }`}
+        >
           <h3 className="text-lg font-semibold mb-2">Resume Summary</h3>
           <p className="text-sm text-gray-800 whitespace-pre-line">
             {resumeSummary}

@@ -35,15 +35,14 @@ function App() {
       <Router>
         <Routes>
           {/* Public routes with Navbar + Footer */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Landing />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/get_started" element={<GetStarted />} />
-            <Route path="/learn_more" element={<LearnMore />} />
 
-            {/* add other public routes here */}
+          <Route element={<PublicLayout />}>
+            <Route index element={<Landing />} /> {/* "/" */}
+            <Route path="login" element={<Login />} />
+            <Route path="services" element={<Services />} />
+            <Route path="register" element={<Register />} />
+            <Route path="get_started" element={<GetStarted />} />
+            <Route path="learn_more" element={<LearnMore />} />
           </Route>
 
           {/* Dashboard routes with separate layout */}

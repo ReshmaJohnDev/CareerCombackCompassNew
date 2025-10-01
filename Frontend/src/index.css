@@ -68,3 +68,24 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* Add this block to the end of your index.css */
+
+/* ---------------------------------------------------------------- */
+/* FIX: HIDE ONLY THE TIME DASHES ('--:--') IN EMPTY DATETIME-LOCAL */
+/* ---------------------------------------------------------------- */
+
+/* Target the hour, minute fields, and the separating text/colon when value is empty */
+.hide-time-dashes:not(:focus):not([value=""])::-webkit-datetime-edit-text,
+.hide-time-dashes[value=""]::-webkit-datetime-edit-hour-field,
+.hide-time-dashes[value=""]::-webkit-datetime-edit-minute-field {
+  /* Use transparent color to hide the dashes, leaving the date prompts visible */
+  color: transparent !important;
+}
+
+/* Ensure time is visible once a value is selected or the field is focused */
+.hide-time-dashes:focus::-webkit-datetime-edit-text,
+.hide-time-dashes:not([value=""])::-webkit-datetime-edit-hour-field,
+.hide-time-dashes:not([value=""])::-webkit-datetime-edit-minute-field {
+  color: initial !important;
+}

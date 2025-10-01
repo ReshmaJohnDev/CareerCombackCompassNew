@@ -5,7 +5,7 @@ import { AppContext } from "../context/AppContext";
 export default function Overview() {
   const [tab, setTab] = useState("summary");
   const [recentActivity, setRecentActivity] = useState([]);
-  const { overviewData } = useContext(AppContext);
+  const { overviewData, darkMode } = useContext(AppContext);
 
   const {
     gapStory = {},
@@ -34,23 +34,37 @@ export default function Overview() {
   }, []);
 
   return (
-    <div className="w-full max-w-7xl mx-auto bg-gradient-to-r from-blue-300 to-gray-200 shadow rounded p-6 flex flex-col min-h-[80vh]">
+    <div
+      className={`w-full max-w-7xl mx-auto shadow rounded p-6 flex flex-col min-h-[80vh] transition-colors duration-500 ${
+        darkMode
+          ? "bg-gray-800 text-gray-100" // Dark mode: dark background, light text
+          : "bg-gradient-to-r from-blue-300 to-gray-200 text-gray-900" // Light mode
+      }`}
+    >
       <h2 className="text-2xl font-bold">Overview</h2>
 
       {/* Tab buttons */}
       <div className="flex space-x-4">
         <button
           onClick={() => setTab("summary")}
-          className={`px-3 py-2 rounded ${
-            tab === "summary" ? "bg-blue-600 text-white" : "bg-gray-200"
+          className={`px-3 py-2 rounded transition-colors duration-300 ${
+            tab === "summary"
+              ? "bg-blue-600 text-white" // Active: always blue
+              : darkMode
+              ? "bg-gray-700 text-gray-300 hover:bg-gray-600" // Dark Inactive
+              : "bg-gray-200 hover:bg-gray-300 text-gray-800" // Light Inactive
           }`}
         >
           Summary
         </button>
         <button
           onClick={() => setTab("activity")}
-          className={`px-3 py-2 rounded ${
-            tab === "activity" ? "bg-blue-600 text-white" : "bg-gray-200"
+          className={`px-3 py-2 rounded transition-colors duration-300 ${
+            tab === "activity"
+              ? "bg-blue-600 text-white" // Active: always blue
+              : darkMode
+              ? "bg-gray-700 text-gray-300 hover:bg-gray-600" // Dark Inactive
+              : "bg-gray-200 hover:bg-gray-300 text-gray-800" // Light Inactive
           }`}
         >
           Recent Activity
@@ -61,7 +75,13 @@ export default function Overview() {
       {tab === "summary" && (
         <div className="grid md:grid-cols-2 gap-4">
           {/* Gap Story */}
-          <div className="bg-white rounded-xl shadow p-4 border">
+          <div
+            className={`rounded-xl shadow p-4 border transition-colors duration-500 ${
+              darkMode
+                ? "bg-gray-700 border-gray-600 text-gray-200"
+                : "bg-white border text-gray-900"
+            }`}
+          >
             <h3 className="text-lg font-semibold text-blue-600 mb-1">
               Gap Story
             </h3>
@@ -84,7 +104,13 @@ export default function Overview() {
           </div>
 
           {/* Next Milestone */}
-          <div className="bg-white rounded-xl shadow p-4 border">
+          <div
+            className={`rounded-xl shadow p-4 border transition-colors duration-500 ${
+              darkMode
+                ? "bg-gray-700 border-gray-600 text-gray-200"
+                : "bg-white border text-gray-900"
+            }`}
+          >
             <h3 className="text-lg font-semibold text-pink-600 mb-1">
               Next Milestone
             </h3>
@@ -104,7 +130,11 @@ export default function Overview() {
 
       {/* Activity View */}
       {tab === "activity" && (
-        <div className="bg-white p-4 rounded shadow">
+        <div
+          className={`p-4 rounded shadow mt-4 transition-colors duration-500 ${
+            darkMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-900"
+          }`}
+        >
           <h3 className="text-lg font-semibold mb-2">Recent Activity</h3>
           {recentActivity.length === 0 ? (
             <p className="text-sm text-gray-500">No recent activity yet.</p>

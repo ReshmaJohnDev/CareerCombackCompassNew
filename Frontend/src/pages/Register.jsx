@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api";
 import { AppContext } from "../context/AppContext";
 
@@ -58,7 +58,11 @@ export default function Register() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                darkMode
+                  ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400"
+                  : "text-gray-900"
+              }`}
               placeholder="Email"
             />
           </label>
@@ -70,7 +74,11 @@ export default function Register() {
               required
               value={formData.name}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                darkMode
+                  ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400"
+                  : "text-gray-900"
+              }`}
               placeholder="Username"
             />
           </label>
@@ -82,7 +90,11 @@ export default function Register() {
               required
               value={formData.password}
               onChange={handleChange}
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${
+                darkMode
+                  ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400"
+                  : "text-gray-900"
+              }`}
               placeholder="Password"
             />
           </label>
@@ -93,9 +105,14 @@ export default function Register() {
 
           <p className="mt-4 text-sm text-center">
             Already have an account?{" "}
-            <a href="/login" className="text-blue-200 hover:underline">
+            <Link
+              to="/login"
+              className={`hover:underline ${
+                darkMode ? "text-blue-400" : "text-blue-600"
+              }`}
+            >
               Login
-            </a>
+            </Link>
           </p>
 
           {success && (

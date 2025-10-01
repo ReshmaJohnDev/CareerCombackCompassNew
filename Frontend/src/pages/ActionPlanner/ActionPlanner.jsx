@@ -5,7 +5,7 @@ import { AppContext } from "../../context/AppContext";
 
 export default function ActionPlanner() {
   const [showForm, setShowForm] = useState(false);
-  const { tasks, setTasks } = useContext(AppContext);
+  const { tasks, setTasks, darkMode } = useContext(AppContext);
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -15,8 +15,20 @@ export default function ActionPlanner() {
   const completedTasks = tasks.filter((job) => job.completed).length;
   const taksToComplete = totalTaks - completedTasks;
   return (
-    <div className="w-full max-w-7xl mx-auto bg-gradient-to-r from-blue-300 to-gray-200 shadow rounded p-6 flex flex-col min-h-[80vh]">
-      <div className="bg-gradient-to-r from-blue-300 to-gray-200 shadow-lg rounded-lg p-6">
+    <div
+      className={`w-full max-w-7xl mx-auto shadow rounded p-6 flex flex-col min-h-[80vh] transition-colors duration-500 ${
+        darkMode
+          ? "bg-gray-800 text-gray-100" // Dark Mode
+          : "bg-gradient-to-r from-blue-300 to-gray-200 text-gray-900" // Light Mode
+      }`}
+    >
+      <div
+        className={`shadow-lg rounded-lg p-6 ${
+          darkMode
+            ? "bg-gray-900"
+            : "bg-gradient-to-r from-blue-300 to-gray-200"
+        }`}
+      >
         <h1 className="text-2xl font-bold mb-4">Action Planner</h1>
         <p>
           Set goals, track progress, and stay motivated with smart reminders
@@ -56,13 +68,6 @@ export default function ActionPlanner() {
             </div>
           </div>
         </div>
-
-        <button
-          onClick={() => setShowForm(true)}
-          className="mb-6 px-5 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          Add Task
-        </button>
 
         <TaskList
           showForm={showForm}

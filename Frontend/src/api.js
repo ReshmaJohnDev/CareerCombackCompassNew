@@ -21,14 +21,21 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear auth info
-      localStorage.removeItem("token");
-      localStorage.removeItem("user_name");
-      // Optionally reload or redirect to login page
-      window.location.href = "/login";
+      //  FIX: Check if the current request is for the login endpoint
+      const isLoginAttempt = error.config.url.endsWith("/auth/login");
+
+      if (!isLoginAttempt) {
+        // This is a global failure (e.g., token expired on a dashboard page)
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_name");
+
+        //  ONLY REDIRECT when the 401 is NOT from the login attempt
+        window.location.href = "/login";
+      }
     }
+
+    // This ensures ALL errors (including the 401 from login) reach the component's catch block
     return Promise.reject(error);
   }
 );
-
 export default api;

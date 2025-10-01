@@ -80,8 +80,18 @@ export default function Landing() {
       {/* Features Section */}
       <section
         id="features"
-        className="-mt-24 py-24 px-12 text-center relative bg-no-repeat bg-cover bg-center"
-        style={{ backgroundImage: 'url("/Background.png")' }}
+        className={`-mt-24 py-24 px-12 text-center relative bg-no-repeat bg-cover bg-center transition-colors duration-500 ${
+          // 🚨 FIX 1: Apply conditional background based on darkMode
+          darkMode
+            ? "bg-gray-900" // Dark Mode: Simple dark background
+            : "bg-white" // Light Mode: Default white/light background
+        }`}
+        style={
+          // 🚨 FIX 2: Only use the image for light mode, or use it consistently
+          !darkMode
+            ? { backgroundImage: 'url("/Background.png")' } // Use image in light mode
+            : {} // No background image in dark mode
+        }
       >
         <h2 className="shine text-4xl lg:text-4xl font-bold leading-tight bg-gradient-to-r from-blue-700 to-gray-700 bg-clip-text text-transparent space-y-8">
           Complete Comeback Toolkit
@@ -91,7 +101,13 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-8 bg-gradient-to-r from-blue-400 to-gray-700 text-center">
+      <section
+        className={`py-24 px-8 text-center transition-colors duration-500 ${
+          darkMode
+            ? "bg-gray-800"
+            : "bg-gradient-to-r from-blue-400 to-gray-700"
+        }`}
+      >
         <h2 className="text-4xl font-bold mb-4 text-white">
           Ready to restart your career?
         </h2>
@@ -124,6 +140,22 @@ export default function Landing() {
 .animate-slideUpFade {
   animation: slideUpFade 0.8s ease-out forwards;
 }
+  .shine-light {
+        background: linear-gradient(90deg, #60a5fa, #d1d5db, #60a5fa); /* Original Light Colors */
+        background-size: 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 3s linear infinite;
+    }
+    
+    .shine-dark {
+        background: linear-gradient(90deg, #3b82f6, #4b5563, #3b82f6); /* New Darker Colors */
+        background-size: 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 3s linear infinite;
+    }
+
   @keyframes shine {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }

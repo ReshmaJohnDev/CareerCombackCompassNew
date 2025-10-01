@@ -10,7 +10,7 @@ export default function ChatBot() {
       text: "Hi! I'm your Career Comeback Coach. How can I help?",
     },
   ]);
-  const { username } = useContext(AppContext);
+  const { username, darkMode } = useContext(AppContext);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +45,16 @@ export default function ChatBot() {
     }
   };
 
+  const botBubbleClasses = darkMode
+    ? "bg-gray-700 text-gray-100" // Dark Bot Bubble
+    : "bg-gray-100 text-gray-800"; // Light Bot Bubble
+
+  const userBubbleClasses = darkMode
+    ? "bg-blue-600 text-white" // Dark User Bubble (primary color)
+    : "bg-blue-100 text-gray-900"; // Light User Bubble
+
+  const botAvatarBg = darkMode ? "bg-gray-600" : "bg-gray-300";
+
   const ChatMessage = ({ role, text }) => {
     const isUser = role === "user";
     const userInitial = username ? username.charAt(0).toUpperCase() : "U";
@@ -54,8 +64,12 @@ export default function ChatBot() {
       >
         <div className={`flex items-start gap-2 max-w-[75%]`}>
           {!isUser && (
-            <div className="text-gray-500 pt-1">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-bold">
+            <div
+              className={`pt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+            >
+              <div
+                className={`w-8 h-8 ${botAvatarBg} rounded-full flex items-center justify-center text-sm font-bold`}
+              >
                 🤖
               </div>
             </div>
@@ -63,8 +77,8 @@ export default function ChatBot() {
           <div
             className={`rounded-lg px-4 py-2 shadow-md ${
               isUser
-                ? "bg-blue-100 text-right text-gray-900"
-                : "bg-gray-100 text-left text-gray-800"
+                ? userBubbleClasses // Applied user bubble styles
+                : botBubbleClasses // Applied bot bubble styles
             }`}
           >
             {text}
@@ -80,11 +94,33 @@ export default function ChatBot() {
       </div>
     );
   };
+  const containerClasses = darkMode
+    ? "bg-gray-800 text-gray-100"
+    : "bg-gradient-to-r from-blue-300 to-gray-200";
+
+  // 🚨 Dynamic styling for chat area wrapper
+  const chatAreaClasses = darkMode
+    ? "ring-gray-700 bg-gray-900"
+    : "ring-gray-200";
+
+  // 🚨 Dynamic styling for suggested topics buttons
+  const topicButtonClasses = darkMode
+    ? "bg-gray-700 hover:bg-gray-600 text-gray-100"
+    : "bg-gray-200 hover:bg-gray-300 text-gray-900";
+
+  // 🚨 Dynamic styling for the input field
+  const inputClasses = darkMode
+    ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400"
+    : "border-gray-300";
 
   return (
-    <div className="w-full max-w-7xl mx-auto bg-gradient-to-r from-blue-300 to-gray-200 shadow rounded p-6 flex flex-col min-h-[80vh]">
+    <div
+      className={`w-full max-w-7xl mx-auto shadow rounded p-6 flex flex-col min-h-[80vh] transition-colors duration-500 ${containerClasses}`}
+    >
       <h2 className="text-xl font-bold mb-4">Career Comeback Chatbot</h2>
-      <div className="flex-1 overflow-y-auto space-y-2 mb-4 p-2 rounded ring-1 ring-gray-200">
+      <div
+        className={`flex-1 overflow-y-auto space-y-2 mb-4 p-2 rounded ring-1 ${chatAreaClasses}`}
+      >
         {messages.map((msg, i) => (
           <ChatMessage key={i} role={msg.role} text={msg.text} />
         ))}
@@ -95,7 +131,7 @@ export default function ChatBot() {
             <button
               key={t}
               onClick={() => setInput(`I need help with ${t.toLowerCase()}`)}
-              className="bg-gray-200 hover:bg-gray-300 text-sm px-3 py-1 rounded"
+              className={`text-sm px-3 py-1 rounded ${topicButtonClasses}`}
             >
               {t}
             </button>
@@ -105,7 +141,7 @@ export default function ChatBot() {
 
       <div className="flex gap-2">
         <input
-          className="flex-1 border rounded p-2"
+          className={`flex-1 border rounded p-2 ${inputClasses}`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."

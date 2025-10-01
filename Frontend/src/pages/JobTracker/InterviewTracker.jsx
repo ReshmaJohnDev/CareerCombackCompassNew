@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import api from "../../api";
 import { set } from "date-fns";
 import { Trash2 } from "lucide-react";
-import Footer from "../Footer";
+
 import { AppContext } from "../../context/AppContext";
 
 const STATUS_OPTIONS = [
@@ -21,20 +21,21 @@ const statusColors = {
   "Interview Scheduled": "#9B59B6", // Purple-ish
 };
 
-const getStatusBadgeColor = (status) => {
+const getStatusBadgeColor = (status, darkMode) => {
+  const base = darkMode ? "text-white" : "text-gray-900";
   switch (status) {
     case "Applied":
-      return "bg-blue-100 text-blue-800";
+      return `bg-blue-600 ${base}`; // Deeper colors for dark mode background
     case "Interviewed":
-      return "bg-yellow-100 text-yellow-800";
+      return `bg-yellow-600 ${base}`;
     case "Hired":
-      return "bg-green-100 text-green-800";
+      return `bg-green-600 ${base}`;
     case "Rejected":
-      return "bg-red-100 text-red-800";
+      return `bg-red-600 ${base}`;
     case "Interview Scheduled":
-      return "bg-purple-100 text-purple-800";
+      return `bg-purple-600 ${base}`;
     default:
-      return "bg-gray-200 text-gray-700";
+      return "bg-gray-400 text-gray-900";
   }
 };
 
@@ -44,7 +45,8 @@ export default function InterviewTracker() {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("");
   const [editingJobId, setEditingJobId] = useState(null);
-  const { logActivity, overviewData, setOverviewData } = useContext(AppContext);
+  const { logActivity, overviewData, setOverviewData, darkMode } =
+    useContext(AppContext);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -230,9 +232,27 @@ export default function InterviewTracker() {
       setError("Failed to delete job");
     }
   };
+  const containerClasses = darkMode
+    ? "bg-gray-800 text-gray-100" // Dark mode main container
+    : "bg-gradient-to-r from-blue-300 to-gray-200"; // Light mode main container
+
+  const headerWrapperClasses = darkMode
+    ? "bg-gray-900 shadow-xl" // Dark mode inner header
+    : "bg-gradient-to-r from-blue-300 to-gray-200 shadow-lg"; // Light mode inner header
+
+  const controlsBoxClasses = darkMode
+    ? "bg-gray-700 text-gray-100 shadow-lg" // Dark mode controls box
+    : "bg-white shadow-md text-gray-700"; // Light mode controls box
+
+  const inputClasses = darkMode
+    ? "bg-gray-800 border-gray-600 text-white focus:ring-blue-400 focus:border-blue-400"
+    : "bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500";
+
   return (
-    <div className="w-full max-w-7xl mx-auto bg-gradient-to-r from-blue-300 to-gray-200 shadow rounded p-6 flex flex-col min-h-[80vh]">
-      <div className="bg-gradient-to-r from-blue-300 to-gray-200 shadow-lg rounded-lg p-6">
+    <div
+      className={`w-full max-w-7xl mx-auto shadow rounded p-6 flex flex-col min-h-[80vh] transition-colors duration-500 ${containerClasses}`}
+    >
+      <div className={`${headerWrapperClasses} rounded-lg p-6`}>
         <h2 className="text-2xl font-bold mb-2">Job Application Tracker</h2>
         <p className="mb-4 text-gray-600">
           Keep track of all your applications and their current status.
@@ -388,7 +408,11 @@ export default function InterviewTracker() {
                     }
                   }}
                   tabIndex={-1}
-                  className="relative w-full p-5 rounded-xl border border-gray-300 shadow-md bg-white cursor-pointer hover:shadow-lg transition"
+                  className={`relative w-full p-5 rounded-xl border shadow-md cursor-pointer hover:shadow-lg transition ${
+                    darkMode
+                      ? "bg-gray-700 border-gray-600 text-gray-100 hover:shadow-2xl"
+                      : "bg-white border-gray-300"
+                  }`}
                   onClick={() => openEditForm(job)}
                 >
                   <div
@@ -401,7 +425,8 @@ export default function InterviewTracker() {
                   <div className="absolute top-3 right-10">
                     <span
                       className={`text-sm font-medium px-3 py-1 rounded-full ${getStatusBadgeColor(
-                        job.status
+                        job.status,
+                        darkMode
                       )}`}
                     >
                       {job.status}
@@ -416,19 +441,36 @@ export default function InterviewTracker() {
                     <Trash2 size={18} />
                   </button>
                   <h3 className="text-lg font-semibold">{job.title}</h3>
-                  <p className="text-gray-600">{job.company}</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p
+                    className={`${
+                      darkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
+                    {job.company}
+                  </p>
+                  <p
+                    className={`text-sm mt-2 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Notes: {job.notes || "—"}
                     Notes: {job.notes || "—"}
                   </p>
 
-                  <div className="absolute font-semibold right-5 bottom-3 text-sm text-gray-400">
+                  <div
+                    className={`absolute font-semibold right-5 bottom-3 text-sm ${
+                      darkMode ? "text-gray-400" : "text-gray-400"
+                    }`}
+                  >
                     Applied: {formatDate(job.applied_date)}
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500">No jobs found</p>
+            <p className={`${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+              No jobs found
+            </p>
           )}
         </div>
       </div>

@@ -1,13 +1,13 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api";
 import { AppContext } from "../context/AppContext";
 
 export default function Login() {
-  const { setUsername, darkMode } = useContext(AppContext);
+  const { setUsername, darkMode, loginError, setLoginError } =
+    useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -24,9 +24,10 @@ export default function Login() {
       localStorage.setItem("token", access_token); // save token in browser
       localStorage.setItem("user_name", name);
       setUsername(name);
-      navigate("/"); // redirect after login
+      navigate("/dashboard"); // redirect after login
     } catch (err) {
-      setError("Invalid email or password");
+      console.log("test");
+      setLoginError("Invalid email or password");
     }
   };
 
@@ -57,7 +58,11 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input input-bordered w-full"
+                className={`input input-bordered w-full ${
+                  darkMode
+                    ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400"
+                    : "text-gray-900"
+                }`}
                 placeholder="mail@site.com"
               />
             </label>
@@ -68,19 +73,25 @@ export default function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input input-bordered w-full"
+                className={`input input-bordered w-full ${
+                  darkMode
+                    ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400"
+                    : "text-gray-900"
+                }`}
                 placeholder="Password"
               />
             </label>
-            <button className="btn btn-neutral w-full mt-4">Login</button>
-            {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
+            <button type="submit" className="btn btn-neutral w-full mt-4">
+              Login
+            </button>
+            {loginError && (
+              <p className="text-red-500 text-sm text-center">{loginError}</p>
             )}
             <p className="mt-4 text-sm text-center">
               Don't have an account?{" "}
-              <a href="/register" className="text-blue-600 hover:underline">
+              <Link to="/register" className="text-blue-600 hover:underline">
                 Register
-              </a>
+              </Link>
             </p>
           </form>
         </div>

@@ -81,7 +81,7 @@ export default function TaskForm({ onSubmit, onCancel, initialData = {} }) {
       />
 
       <label>
-        Reminder:
+        Remind On :
         <input
           type="datetime-local"
           name="reminder"
@@ -90,26 +90,17 @@ export default function TaskForm({ onSubmit, onCancel, initialData = {} }) {
           className="w-full p-2 border rounded"
         />
       </label>
-
       <label>
-        Completed Date:
+        Reminder Email:
         <input
-          type="datetime-local"
-          name="completed_date"
-          value={formData.completed_date}
+          type="email"
+          name="reminder_email"
+          placeholder="Reminder Email"
+          value={formData.reminder_email}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
       </label>
-
-      <input
-        type="email"
-        name="reminder_email"
-        placeholder="Reminder Email"
-        value={formData.reminder_email}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
-      />
 
       <label className="flex items-center gap-2">
         <input

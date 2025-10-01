@@ -4,6 +4,7 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [username, setUsername] = useState(localStorage.getItem("user_name"));
+  const [loginError, setLoginError] = useState("");
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
     return saved ? JSON.parse(saved) : false;
@@ -146,6 +147,8 @@ export const AppProvider = ({ children }) => {
         setGapStoryStepsCompleted,
         tasks,
         setTasks,
+        loginError,
+        setLoginError,
       }}
     >
       {children}

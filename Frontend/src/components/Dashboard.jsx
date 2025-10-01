@@ -10,7 +10,9 @@ export default function Dashboard() {
   useEffect(() => {
     // Redirect to login if user is not logged in
     const token = localStorage.getItem("token");
+    console.log("Dashboard useEffect fired, token:", token);
     if (!token) {
+      console.log("No token found → redirecting to /login");
       navigate("/login", { replace: true });
     }
   }, [navigate]);
@@ -32,8 +34,8 @@ export default function Dashboard() {
 
   return (
     <div
-      className={`p-6 text-${
-        darkMode ? "gray-100" : "gray-900"
+      className={`p-6 ${
+        darkMode ? "text-gray-100" : "text-gray-900"
       } bg-transparent`}
     >
       {" "}
@@ -43,15 +45,28 @@ export default function Dashboard() {
           <p className="mb-8 text-lg">
             Continue building your career comeback journey
           </p>
-          <div className="flex justify-around gap-x-4 rounded-md bg-gradient-to-r from-blue-400 to-gray-400 px-4 py-2">
+          <div
+            className={`flex justify-around gap-x-4 rounded-md px-4 py-2 ${
+              darkMode
+                ? "bg-gray-800" // Dark container background
+                : "bg-gradient-to-r from-blue-400 to-gray-400" // Light container background
+            }`}
+          >
             {tabs.map(({ label, path }) => (
               <Link
                 key={path}
                 to={path}
                 className={`flex items-center justify-center w-40 px-4 py-2 rounded-md font-medium transition-colors ${
+                  // 🚨 FIX 3: Conditional styling for active/inactive tabs
                   activeTab === path
-                    ? "bg-white text-black"
-                    : "text-gray-600 hover:bg-gray-300"
+                    ? // Active Tab
+                      darkMode
+                      ? "bg-blue-600 text-white" // Dark Active: Highlighted Blue
+                      : "bg-white text-black" // Light Active: Highlighted White
+                    : // Inactive Tab
+                    darkMode
+                    ? "text-gray-300 hover:bg-gray-700" // Dark Inactive: Light text on dark hover
+                    : "text-gray-600 hover:bg-gray-300" // Light Inactive: Dark text on light hover
                 }`}
               >
                 <span>{label}</span>
