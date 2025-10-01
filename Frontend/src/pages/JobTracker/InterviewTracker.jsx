@@ -454,7 +454,6 @@ export default function InterviewTracker() {
                     }`}
                   >
                     Notes: {job.notes || "—"}
-                    Notes: {job.notes || "—"}
                   </p>
 
                   <div
