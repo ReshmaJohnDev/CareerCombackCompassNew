@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from JobTracker.routes.job_routes import router as job_router
 from GapGenerator.routes.gap_routes import router as gap_router
@@ -9,10 +10,11 @@ from ActionPlanner.scheduler.scheduler import start_scheduler as scheduler_start
 from Chatbot.routes.chat_route import router as chat_router
 
 
+url = os.getenv("VITE_API_URL")
 #Initializing the Fast API
 app = FastAPI()
 origins = [
-    "https://career-comback-frontend.onrender.com",
+    url
 ]
 
 app.add_middleware(

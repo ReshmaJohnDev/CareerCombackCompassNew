@@ -21,7 +21,7 @@ Resources Hub: Curated, categorized links and articles for resume building, netw
 
 AI Chatbot: An interactive assistant providing instant, contextual career coaching and advice (via LLM API proxy).
 
-🛠️ Tech Stack
+Tech Stack
 This project utilizes a modern, decoupled full-stack architecture.
 
 Frontend
@@ -32,7 +32,6 @@ Tailwind CSS is a Utility-first framework for rapid and dynamic styling (support
 Axios HTTP client for making API requests to the backend.
 Context API manages global state (User Auth, Dark Mode).
 
-Export to Sheets
 Backend
 Technology Description
 FastAPI is a High-performance Python web framework for handling API endpoints.
@@ -41,8 +40,8 @@ SQLAlchemy Python SQL toolkit and Object Relational Mapper (ORM) used to interac
 JWT (PyJWT & FastAPI Security) handles secure, stateless authentication and authorization.
 Passlib (bcrypt) used for secure password hashing and verification.
 
-Export to Sheets
-⚙️ Installation and Setup
+Installation and Setup
+
 Prerequisites
 You must have the following installed:
 
@@ -52,12 +51,15 @@ Node.js and npm (or yarn)
 
 PostgreSQL running locally or via a service.
 
-1. Backend Setup
-   Bash
-
-# Clone the repository
+Clone :
 
 git clone https://github.com/ReshmaJohnDev/CareerCombackCompassNew
+
+1. Backend Setup
+
+# Navigate to backend directory
+
+cd Backend
 
 # Create and activate a virtual environment
 
@@ -68,40 +70,49 @@ source venv/bin/activate # On Windows use `venv\Scripts\activate`
 
 pip install -r requirements.txt
 
-# Create a .env file in the backend root and add your configuration
+# Create a .env file in the file path mentioned below
 
-# JWT_SECRET_KEY=YOUR_SECURE_RANDOM_KEY
+File Path : /CareerCombackCompass/Backend/config
 
-# DATABASE_URL=postgresql://user:password@host:port/database_name
-
-# Apply database migrations (initial setup)
-
-python -m your_app_name.database_migrations
+BACKEND - .env file
+DATABASE_URI = 'postgresql://user:password@host:port/database_name'
+JWT_SECRET_KEY= YOUR_SECURE_RANDOM_KEY
+COHERE_API_KEY=YOUR_SECURE_RANDOM_KEY
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=YOUR_SMTP_USERNAME
+SMTP_PASSWORD=YOUR_SMTP_PASSWORD
+SENDER_EMAIL=YOUR_SENDER_EMAIL
 
 # Run the FastAPI server
 
 uvicorn main:app --reload --port 8000
 The backend API will be running at http://localhost:8000.
 
-2. Frontend Setup
-   Bash
+---
 
-cd frontend
+2. Frontend Setup
+
+# Navigate to frotend directory
+
+cd Frontend
 
 # Install Node dependencies
 
 npm install
 
-# Create a .env file for the frontend
+# Create a .env file for the frontend directory path
 
-# REACT_APP_API_URL=http://localhost:8000
+CareerCombackCompass/Frontend/.env
+
+# VITE_API_URL=http://localhost:8000
 
 # Start the React development server
 
-npm start
+npm run dev
 The frontend application will be running at http://localhost:3000.
 
-👨‍💻 Authentication & Security Flow
+Authentication & Security Flow
 The system uses a stateless JWT-based authentication flow:
 
 Login: User submits credentials to POST /auth/login.
